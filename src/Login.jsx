@@ -63,13 +63,18 @@ function Login({
         setView("home");
       }
     } else {
-      // ADMIN LOGIN GATEWAY: Standard verification query checks against backend database
-      fetch("http://localhost:5000/api/admin/login", {
+      // FIXED: Swapped local environment domain route point for your live Render production link
+      fetch("https://mang-wors-back.onrender.com/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("GATE CLEARANCE DENIED OR ROUTE INVALID");
+          }
+          return res.json();
+        })
         .then((data) => {
           if (data.success) {
             setView("admin");
