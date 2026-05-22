@@ -6,12 +6,8 @@ function Manga({ setView, setSelectedManga }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // FIXED: Appended /api/mangas to successfully target the Express router endpoint
-    fetch("// ❌ Change this:
-fetch("http://localhost:5000/api/mangas")
-
-//  To this:
-fetch("https://mang-wors-back.onrender.com/api/mangas")")
+    // FIXED: Removed the accidental duplicated `")` syntax residue at the end of the URL string
+    fetch("https://mang-wors-back.onrender.com/api/mangas")
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP network error! Status: ${res.status}`);
