@@ -7,7 +7,11 @@ function Manga({ setView, setSelectedManga }) {
 
   useEffect(() => {
     // FIXED: Appended /api/mangas to successfully target the Express router endpoint
-    fetch("https://mang-wors-back.onrender.com/api/mangas")
+    fetch("// ❌ Change this:
+fetch("http://localhost:5000/api/mangas")
+
+//  To this:
+fetch("https://mang-wors-back.onrender.com/api/mangas")")
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP network error! Status: ${res.status}`);
