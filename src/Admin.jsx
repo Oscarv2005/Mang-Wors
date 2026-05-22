@@ -14,7 +14,8 @@ function Admin() {
   const [chapPdf, setChapPdf] = useState("");
 
   const fetchMangas = () => {
-    fetch("http://localhost:5000/api/mangas")
+    // FIXED: Target live backend Render service
+    fetch("https://mang-wors-back.onrender.com/api/mangas")
       .then((res) => res.json())
       .then((data) => {
         setMangas(data);
@@ -37,7 +38,8 @@ function Admin() {
       description: mangaDesc,
     };
 
-    fetch("http://localhost:5000/api/mangas", {
+    // FIXED: Target live backend Render service
+    fetch("https://mang-wors-back.onrender.com/api/mangas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -56,7 +58,9 @@ function Admin() {
     e.stopPropagation();
     if (!window.confirm("PURGE THIS MASTER ARCHIVE RECORD PERMANENTLY?"))
       return;
-    fetch(`http://localhost:5000/api/mangas/${mangaId}`, {
+    
+    // FIXED: Target live backend Render service
+    fetch(`https://mang-wors-back.onrender.com/api/mangas/${mangaId}`, {
       method: "DELETE",
     }).then(() => {
       if (activeMangaId === mangaId) setActiveMangaId(null);
@@ -74,7 +78,8 @@ function Admin() {
       pdfUrl: chapPdf,
     };
 
-    fetch(`http://localhost:5000/api/mangas/${activeMangaId}/chapters`, {
+    // FIXED: Target live backend Render service
+    fetch(`https://mang-wors-back.onrender.com/api/mangas/${activeMangaId}/chapters`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -89,8 +94,9 @@ function Admin() {
   };
 
   const deleteChapter = (chapterId) => {
+    // FIXED: Target live backend Render service
     fetch(
-      `http://localhost:5000/api/mangas/${activeMangaId}/chapters/${chapterId}`,
+      `https://mang-wors-back.onrender.com/api/mangas/${activeMangaId}/chapters/${chapterId}`,
       {
         method: "DELETE",
       },
@@ -210,8 +216,7 @@ function Admin() {
                     </div>
                     <div className="form-field-gold">
                       <label>
-                        MANGA PAGE IMAGE LINK COLLECTION (COMMA SEPARATED
-                        SELECTION)
+                        MANGA PAGE IMAGE LINK COLLECTION (COMMA SEPARATED SELECTION)
                       </label>
                       <textarea
                         placeholder="https://link1.png, https://link2.png, https://link3.png"
