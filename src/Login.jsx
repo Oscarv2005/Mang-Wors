@@ -8,15 +8,11 @@ function Login({
   setSelectedManga,
   isUserGate,
 }) {
-  // Gate Modes: 'login' or 'register'
-  const [authMode, setAuthMode] = useState("login");
-
-  // Form Input States
+  const [authMode, setAuthMode] = useState("login"); // 'login' or 'register'
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Status Feedback States
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -29,27 +25,24 @@ function Login({
     setConfirmPassword("");
   };
 
-  const handleSubmitAction = (e) => {
+  const handleAuthSubmit = (e) => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
 
-    // --- MODE 1: REGISTRATION PROTOCOL ---
-    if (authMode === "register") {
+    // --- SUB-ROUTE A: REGISTRATION COMPLIANCE ---
+    if (isUserGate && authMode === "register") {
       if (password !== confirmPassword) {
         setErrorMessage("PASSWORDS DO NOT MATCH. VERIFY ENTRIES.");
         return;
       }
 
-      // Simulated local/database user registration success trace
       setSuccessMessage(
-        "DECK ACCOUNT ENGRAVED SUCCESSFULLY! PROCESSING OVERLAY ACCESS...",
+        "PROFILE ACCREDITED! UNSEALING INK SYSTEM CHRONICLES...",
       );
-
-      // Auto-login user upon successful profile creation
       setTimeout(() => {
         setIsUserLoggedIn(true);
-        if (isUserGate && targetRedirectManga) {
+        if (targetRedirectManga) {
           setSelectedManga(targetRedirectManga);
           setView("chapters");
         } else {
@@ -59,9 +52,9 @@ function Login({
       return;
     }
 
-    // --- MODE 2: LOGIN AUTHENTICATION GATEWAY ---
+    // --- SUB-ROUTE B: GENERAL ACCESS FLOWS ---
     if (isUserGate) {
-      // USER LOGIN GATE: Instantly authorize open reading privileges
+      // USER LOGIN GATEWAY: Instantly authorize session
       setIsUserLoggedIn(true);
       if (targetRedirectManga) {
         setSelectedManga(targetRedirectManga);
@@ -70,7 +63,7 @@ function Login({
         setView("home");
       }
     } else {
-      // ADMIN LOGIN GATE: Query hardcoded cloud production authentication endpoint
+      // ADMIN LOGIN GATEWAY: Standard verification query checks against backend database
       fetch("http://localhost:5000/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,46 +89,45 @@ function Login({
       <div className="login-bg-lines-prestige" aria-hidden="true" />
 
       <div className="login-container-gold">
-        {/* Subtle decorative framing anchors */}
         <div className="login-gate-pin pin-tl" />
         <div className="login-gate-pin pin-br" />
 
-        {/* Dynamic Mode Switch Headers */}
         <div className="login-header-gold">
           <span className="login-subtitle-gold">
             {isUserGate
-              ? "閲覧制限 // ACCESS CONTROL"
+              ? "会員アクセス // MEMBER PLATFORM"
               : "アクセス制限 // SECURE PORTAL"}
           </span>
           <h1 className="login-title-gold">
             {isUserGate
               ? authMode === "login"
                 ? "READER ACCESS"
-                : "ENGRAVE PROFILE"
+                : "ENGRAVE LEDGER"
               : "ADMIN IDENTITY"}
           </h1>
           <div className="login-rule-gold" />
         </div>
 
-        {/* Sub-navigation selector tabs visible strictly for Users */}
+        {/* Dynamic Nav Switcher Tabs for Users */}
         {isUserGate && (
           <div className="auth-mode-selector-tabs">
             <button
+              type="button"
               className={`auth-tab-btn ${authMode === "login" ? "active-tab" : ""}`}
               onClick={() => handleModeSwitch("login")}
             >
-              SIGN IN
+              Sign In
             </button>
             <button
+              type="button"
               className={`auth-tab-btn ${authMode === "register" ? "active-tab" : ""}`}
               onClick={() => handleModeSwitch("register")}
             >
-              REGISTER
+              Register
             </button>
           </div>
         )}
 
-        {/* Status Messages Panels */}
         {errorMessage && (
           <div className="login-error-box-gold">
             <span className="error-icon-gold">✦</span>
@@ -150,19 +142,16 @@ function Login({
           </div>
         )}
 
-        {/* Form Submission Pipeline */}
-        <form onSubmit={handleSubmitAction} className="login-form-gold">
+        <form onSubmit={handleAuthSubmit} className="login-form-gold">
           <div className="login-input-group-gold">
             <label>
-              {isUserGate
-                ? "ACCOUNT IDENTITY / EMAIL"
-                : "ADMINISTRATOR USERNAME"}
+              {isUserGate ? "ACCOUNT ID / EMAIL" : "ADMINISTRATOR USERNAME"}
             </label>
             <input
-              type={isUserGate ? "text" : "email"}
+              type="text"
               placeholder={
                 isUserGate
-                  ? "ENTER YOUR DECK PROFILE ID"
+                  ? "ENTER DECK PROFILE IDENTITY"
                   : "ENTER SECURE KEY ID"
               }
               value={username}
@@ -172,27 +161,22 @@ function Login({
           </div>
 
           <div className="login-input-group-gold">
-            <label>
-              {isUserGate
-                ? "SECURE ACCESS PASSWORD"
-                : "ACCESS PHRASE / PASSWORD"}
-            </label>
+            <label>SECURITY PHRASE / PASSWORD</label>
             <input
               type="password"
-              placeholder="ENTER SECURE PHRASE PASSWORD"
+              placeholder="ENTER SECURE SECURITY PHRASE"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          {/* Confirm Password field visible strictly on Register mode */}
           {isUserGate && authMode === "register" && (
             <div className="login-input-group-gold field-fade-in-prestige">
-              <label>CONFIRM SECURE PASSWORD</label>
+              <label>CONFIRM ARCHIVE ACCOUNT PASSWORD</label>
               <input
                 type="password"
-                placeholder="RE-ENTER PASSWORD SECURE SECURITY PHRASE"
+                placeholder="RE-ENTER PASSWORD PHRASE"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -204,8 +188,8 @@ function Login({
             <span>
               {isUserGate
                 ? authMode === "login"
-                  ? "UNLOCK SPECIMEN INDEX"
-                  : "CREATE ACCREDITED LEDGER"
+                  ? "UNLOCK MATRIX CHRONICLE"
+                  : "ENGRAVE READER CARD"
                 : "REQUEST GATE CLEARANCE"}
             </span>
             <span className="btn-arrow-gold">⟶</span>
@@ -214,8 +198,8 @@ function Login({
 
         <p className="login-footer-notice-gold">
           {isUserGate
-            ? "Free member log endpoints are accessible. Standard credentials synchronize across network ledgers safely."
-            : "Access keys are hardcoded to your permanent profile ledger vector configuration."}
+            ? "Free creation log endpoints are accessible. Standard credentials synchronize across network ledgers safely."
+            : "Access keys are hardcoded to your permanent admin account profile configuration."}
         </p>
       </div>
     </section>
