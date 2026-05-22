@@ -12,20 +12,20 @@ function App() {
   const [view, setView] = useState("home");
   const [selectedManga, setSelectedManga] = useState(null);
 
-  // Authorization Flags
+  // User Authentication Context Tracking
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [targetRedirectManga, setTargetRedirectManga] = useState(null);
 
-  // Gated function managing card clicks
+  // Checks authentication status when a card is selected
   const handleMangaSelection = (manga) => {
     setSelectedManga(manga);
 
     if (!isUserLoggedIn) {
-      // User is unauthenticated -> save target selection object and swap views to user-login
+      // User is unauthenticated: hold onto selection and show login/register tabs
       setTargetRedirectManga(manga);
       setView("user-login");
     } else {
-      // User is logged in -> route directly to chapters page
+      // User is validated: proceed to read
       setView("chapters");
     }
   };
@@ -37,7 +37,7 @@ function App() {
       {view === "home" && (
         <>
           <Hero />
-          {/* Passed the handler interceptor correctly into props here */}
+          {/* Hooked up structural selection interception parameter */}
           <Manga setView={setView} setSelectedManga={handleMangaSelection} />
           <Contact />
         </>
@@ -45,7 +45,7 @@ function App() {
 
       {view === "chapters" && <Chapters selectedManga={selectedManga} />}
 
-      {/* User Login View state logic block */}
+      {/* View Case 1: Member Deck Entrance (Sign In + Registration Matrix) */}
       {view === "user-login" && (
         <Login
           setView={setView}
@@ -56,7 +56,7 @@ function App() {
         />
       )}
 
-      {/* Admin Panel Gateway view state block */}
+      {/* View Case 2: Secure Core Platform Administrative Key Authentication Gate */}
       {view === "login" && (
         <Login
           setView={setView}
