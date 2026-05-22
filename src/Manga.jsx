@@ -6,7 +6,7 @@ function Manga({ setView, setSelectedManga }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/mangas")
+    fetch("https://mang-wors-back.onrender.com")
       .then((res) => res.json())
       .then((data) => {
         setMangas(data);
