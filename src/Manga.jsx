@@ -6,8 +6,14 @@ function Manga({ setView, setSelectedManga }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://mang-wors-back.onrender.com")
-      .then((res) => res.json())
+    // FIXED: Appended /api/mangas to successfully target the Express router endpoint
+    fetch("https://mang-wors-back.onrender.com/api/mangas")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP network error! Status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         setMangas(data);
         setLoading(false);
