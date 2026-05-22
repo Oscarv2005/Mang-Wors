@@ -10,7 +10,7 @@ function Manga({ setView, setSelectedManga }) {
       .then((res) => res.json())
       .then((data) => {
         setMangas(data);
-        loading && setLoading(false);
+        setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching manga grid data:", err);
@@ -41,6 +41,7 @@ function Manga({ setView, setSelectedManga }) {
         <div className="manga-container">
           {mangas.map((manga, index) => (
             <div className="manga-card" key={manga._id}>
+              {/* Luxury Gilded Framework Accents */}
               <div className="manga-card-gold-corner top-left" />
               <div className="manga-card-gold-corner bottom-right" />
 
@@ -64,10 +65,7 @@ function Manga({ setView, setSelectedManga }) {
 
                 <button
                   className="manga-read-btn-gold"
-                  onClick={() => {
-                    // FIXED: This now triggers the App.jsx function directly
-                    setSelectedManga(manga);
-                  }}
+                  onClick={() => setSelectedManga(manga)}
                 >
                   <span className="btn-label-prestige">UNSEAL SPECIMEN</span>
                   <span className="btn-arrow-gold">⟶</span>
