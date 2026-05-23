@@ -21,9 +21,10 @@ function Login({
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Smooth operational switch routine between different gate entries
+  // Clean transition switcher between modes
   const handleRoleToggle = (role) => {
     setIdentityRole(role);
+    setReaderMode("login"); // Reset back to default sub-login screen on tab change
     setErrorMessage("");
     setSuccessMessage("");
     setUsername("");
@@ -87,7 +88,6 @@ function Login({
     }
 
     // --- PIPELINE 3: EXISTING READER DIRECT SIGN IN ---
-    // Instantly authorizes returning profile card credentials
     setSuccessMessage("WELCOME BACK, READER. RETRIEVING INTERACTIVE PORTFOLIO...");
     setTimeout(() => {
       setIsUserLoggedIn(true);
@@ -183,7 +183,7 @@ function Login({
             />
           </div>
 
-          {/* DYNAMIC FIELD: Active only for new users clicking Register track links */}
+          {/* DYNAMIC FIELD: Slides open instantly when readerMode state shifts to register */}
           {identityRole === "reader" && readerMode === "register" && (
             <div className="login-input-group-gold field-fade-in-prestige">
               <label>CONFIRM SECURE PASSWORD</label>
@@ -209,7 +209,7 @@ function Login({
           </button>
         </form>
 
-        {/* FOOTER DIALOG: Sub-mode selection paths for Readers vs Hardcoded notices for Admin */}
+        {/* FOOTER DIALOG: Swaps mode state variables instantly onClick */}
         <div className="login-footer-notice-gold">
           {identityRole === "admin" ? (
             <p className="admin-lock-text-warning">
@@ -218,14 +218,14 @@ function Login({
           ) : readerMode === "login" ? (
             <p className="auth-helper-subtext">
               First time unsealing specimens?{" "}
-              <span className="inline-gold-link" onClick={() => handleModeSwitch("register")}>
+              <span className="inline-gold-link" onClick={() => setReaderMode("register")}>
                 REGISTER NEW ARCHIVE CARD
               </span>
             </p>
           ) : (
             <p className="auth-helper-subtext">
               Already possess an active reading license?{" "}
-              <span className="inline-gold-link" onClick={() => handleModeSwitch("login")}>
+              <span className="inline-gold-link" onClick={() => setReaderMode("login")}>
                 DIRECT SIGN IN
               </span>
             </p>
