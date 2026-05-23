@@ -78,23 +78,13 @@ function App() {
 
       {view === "chapters" && <Chapters selectedManga={selectedManga} />}
 
-      {/* View Case 1: Member Deck Entrance (Sign In + Registration Matrix) */}
-      {view === "user-login" && (
+      {/* FIXED UNIFIED MOUNT BLOCK: Handles both user-login and navbar portal transitions */}
+      {(view === "user-login" || view === "login") && (
         <Login
           setView={handleViewChange}
           setIsUserLoggedIn={handleUserLoginSuccess}
           targetRedirectManga={targetRedirectManga}
           setSelectedManga={setSelectedManga}
-          isUserGate={true}
-        />
-      )}
-
-      {/* View Case 2: Secure Core Platform Administrative Key Authentication Gate */}
-      {view === "login" && (
-        <Login
-          setView={handleViewChange}
-          setIsUserLoggedIn={handleUserLoginSuccess}
-          isUserGate={false}
         />
       )}
 
