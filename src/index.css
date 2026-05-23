@@ -171,6 +171,30 @@ body {
   display: none;
 }
 
+
+.nav-logout-btn-gold {
+  border-color: rgba(239, 68, 68, 0.2) !important; 
+}
+
+.nav-logout-btn-gold .nav-btn-inner {
+  color: #ff6b6b !important;
+}
+
+.nav-logout-btn-gold::before {
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.15), transparent) !important;
+}
+
+.nav-logout-btn-gold:hover {
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15) !important;
+  background: rgba(239, 68, 68, 0.03) !important;
+}
+
+.nav-logout-btn-gold:hover .nav-btn-inner {
+  color: #ff8787 !important;
+  letter-spacing: 2px;
+}
+
 /* Responsive UI Settings Overrides */
 @media (max-width: 768px) {
   .navbar, .navbar.scrolled {
