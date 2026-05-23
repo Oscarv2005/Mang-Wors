@@ -6,18 +6,24 @@ function Login({
   setIsUserLoggedIn,
   targetRedirectManga,
   setSelectedManga,
-  isUserGate,
 }) {
-  const [authMode, setAuthMode] = useState("login"); // 'login' or 'register'
+  // Identity Segment Track: 'reader' or 'admin'
+  const [identityRole, setIdentityRole] = useState("reader");
+  // Sub-Authentication Phase for Readers: 'login' or 'register'
+  const [readerMode, setReaderMode] = useState("login");
+
+  // Form Input Coordinates
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // System State Messaging Pointers
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleModeSwitch = (mode) => {
-    setAuthMode(mode);
+  // Smooth operational switch routine between different gate entries
+  const handleRoleToggle = (role) => {
+    setIdentityRole(role);
     setErrorMessage("");
     setSuccessMessage("");
     setUsername("");
@@ -25,21 +31,49 @@ function Login({
     setConfirmPassword("");
   };
 
-  const handleAuthSubmit = (e) => {
+  const handleAuthPipelineSubmit = (e) => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
 
-    // --- SUB-ROUTE A: REGISTRATION COMPLIANCE ---
-    if (isUserGate && authMode === "register") {
+    // --- PIPELINE 1: SECURE ADMINISTRATIVE IDENTITY CLEARANCE ---
+    if (identityRole === "admin") {
+      fetch("https://mang-wors-back.onrender.com/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("CORE INTEGRITY VERIFICATION FAILED");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data.success) {
+            setSuccessMessage("ADMINISTRATIVE VERIFICATION PASSED. BOOTING CONSOLE...");
+            setTimeout(() => {
+              setView("admin");
+            }, 1000);
+          } else {
+            setErrorMessage(data.message || "INVALID ADMINISTRATIVE SECURITY KEYS");
+          }
+        })
+        .catch((err) => {
+          console.error("Authentication link down:", err);
+          setErrorMessage("SERVER CONNECTION REFUSED. VERIFY LIVE BACKEND ENGINE STATUS.");
+        });
+      return;
+    }
+
+    // --- PIPELINE 2: READER ACCOUNT NEW REGISTRATION ---
+    if (readerMode === "register") {
       if (password !== confirmPassword) {
-        setErrorMessage("PASSWORDS DO NOT MATCH. VERIFY ENTRIES.");
+        setErrorMessage("PASSWORDS DO NOT MATCH. VERIFY SECURE STRINGS.");
         return;
       }
 
-      setSuccessMessage(
-        "PROFILE ACCREDITED! UNSEALING INK SYSTEM CHRONICLES...",
-      );
+      setSuccessMessage("NEW READER LOG ENGRAVED! ACCESS GRANTED...");
       setTimeout(() => {
         setIsUserLoggedIn(true);
         if (targetRedirectManga) {
@@ -52,9 +86,10 @@ function Login({
       return;
     }
 
-    // --- SUB-ROUTE B: GENERAL ACCESS FLOWS ---
-    if (isUserGate) {
-      // USER LOGIN GATEWAY: Instantly authorize session
+    // --- PIPELINE 3: EXISTING READER DIRECT SIGN IN ---
+    // Instantly authorizes returning profile card credentials
+    setSuccessMessage("WELCOME BACK, READER. RETRIEVING INTERACTIVE PORTFOLIO...");
+    setTimeout(() => {
       setIsUserLoggedIn(true);
       if (targetRedirectManga) {
         setSelectedManga(targetRedirectManga);
@@ -62,31 +97,7 @@ function Login({
       } else {
         setView("home");
       }
-    } else {
-      // FIXED: Swapped local environment domain route point for your live Render production link
-      fetch("https://mang-wors-back.onrender.com/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("GATE CLEARANCE DENIED OR ROUTE INVALID");
-          }
-          return res.json();
-        })
-        .then((data) => {
-          if (data.success) {
-            setView("admin");
-          } else {
-            setErrorMessage(data.message || "INVALID CREDENTIAL MATRIX");
-          }
-        })
-        .catch((err) => {
-          console.error("Authentication link down:", err);
-          setErrorMessage("SERVER ERROR. VERIFY CORE GATE OPERATIONAL STATUS.");
-        });
-    }
+    }, 1000);
   };
 
   return (
@@ -94,45 +105,44 @@ function Login({
       <div className="login-bg-lines-prestige" aria-hidden="true" />
 
       <div className="login-container-gold">
+        {/* Prestige Gilded Boundary Corner Clips */}
         <div className="login-gate-pin pin-tl" />
         <div className="login-gate-pin pin-br" />
 
+        {/* TOP COMPONENT: Identity Segment Toggle Matrix */}
+        <div className="identity-segment-bar-prestige">
+          <button
+            type="button"
+            className={`identity-segment-btn ${identityRole === "reader" ? "active-segment" : ""}`}
+            onClick={() => handleRoleToggle("reader")}
+          >
+            READER PORTAL
+          </button>
+          <button
+            type="button"
+            className={`identity-segment-btn ${identityRole === "admin" ? "active-segment" : ""}`}
+            onClick={() => handleRoleToggle("admin")}
+          >
+            ADMIN GATE
+          </button>
+        </div>
+
+        {/* HEADER SECTION */}
         <div className="login-header-gold">
           <span className="login-subtitle-gold">
-            {isUserGate
-              ? "会員アクセス // MEMBER PLATFORM"
-              : "アクセス制限 // SECURE PORTAL"}
+            {identityRole === "admin" ? "管理者コンソール // SECURE PORTAL" : "会員システム // MEMBERS INTERFACE"}
           </span>
           <h1 className="login-title-gold">
-            {isUserGate
-              ? authMode === "login"
-                ? "READER ACCESS"
-                : "ENGRAVE LEDGER"
-              : "ADMIN IDENTITY"}
+            {identityRole === "admin"
+              ? "ADMIN IDENTITY"
+              : readerMode === "login"
+              ? "RETURNING READER"
+              : "ENGRAVE LEDGER PROFILE"}
           </h1>
           <div className="login-rule-gold" />
         </div>
 
-        {/* Dynamic Nav Switcher Tabs for Users */}
-        {isUserGate && (
-          <div className="auth-mode-selector-tabs">
-            <button
-              type="button"
-              className={`auth-tab-btn ${authMode === "login" ? "active-tab" : ""}`}
-              onClick={() => handleModeSwitch("login")}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              className={`auth-tab-btn ${authMode === "register" ? "active-tab" : ""}`}
-              onClick={() => handleModeSwitch("register")}
-            >
-              Register
-            </button>
-          </div>
-        )}
-
+        {/* FEEDBACK & STATUS MESSAGE CARDS */}
         {errorMessage && (
           <div className="login-error-box-gold">
             <span className="error-icon-gold">✦</span>
@@ -147,18 +157,15 @@ function Login({
           </div>
         )}
 
-        <form onSubmit={handleAuthSubmit} className="login-form-gold">
+        {/* CORE SECURE ENTRY FORM FORMATION */}
+        <form onSubmit={handleAuthPipelineSubmit} className="login-form-gold">
           <div className="login-input-group-gold">
             <label>
-              {isUserGate ? "ACCOUNT ID / EMAIL" : "ADMINISTRATOR USERNAME"}
+              {identityRole === "admin" ? "ADMINISTRATOR ACCOUNT USERNAME" : "READER IDENTITY ID / EMAIL"}
             </label>
             <input
-              type="text"
-              placeholder={
-                isUserGate
-                  ? "ENTER DECK PROFILE IDENTITY"
-                  : "ENTER SECURE KEY ID"
-              }
+              type={identityRole === "admin" ? "email" : "text"}
+              placeholder={identityRole === "admin" ? "e.g., admin@manga.com" : "ENTER CARD DECK KEY OR EMAIL"}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -169,19 +176,20 @@ function Login({
             <label>SECURITY PHRASE / PASSWORD</label>
             <input
               type="password"
-              placeholder="ENTER SECURE SECURITY PHRASE"
+              placeholder="ENTER COMPLEX ACCOUNT PHRASE"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          {isUserGate && authMode === "register" && (
+          {/* DYNAMIC FIELD: Active only for new users clicking Register track links */}
+          {identityRole === "reader" && readerMode === "register" && (
             <div className="login-input-group-gold field-fade-in-prestige">
-              <label>CONFIRM ARCHIVE ACCOUNT PASSWORD</label>
+              <label>CONFIRM SECURE PASSWORD</label>
               <input
                 type="password"
-                placeholder="RE-ENTER PASSWORD PHRASE"
+                placeholder="RE-ENTER SECURITY PHRASE"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -191,21 +199,38 @@ function Login({
 
           <button type="submit" className="login-submit-btn-gold">
             <span>
-              {isUserGate
-                ? authMode === "login"
-                  ? "UNLOCK MATRIX CHRONICLE"
-                  : "ENGRAVE READER CARD"
-                : "REQUEST GATE CLEARANCE"}
+              {identityRole === "admin"
+                ? "REQUEST CONSOLE ENTRY"
+                : readerMode === "login"
+                ? "UNLOCK SPECIMEN INDEX"
+                : "COMMIT ACCOUNT TO LEDGER"}
             </span>
             <span className="btn-arrow-gold">⟶</span>
           </button>
         </form>
 
-        <p className="login-footer-notice-gold">
-          {isUserGate
-            ? "Free creation log endpoints are accessible. Standard credentials synchronize across network ledgers safely."
-            : "Access keys are hardcoded to your permanent admin account profile configuration."}
-        </p>
+        {/* FOOTER DIALOG: Sub-mode selection paths for Readers vs Hardcoded notices for Admin */}
+        <div className="login-footer-notice-gold">
+          {identityRole === "admin" ? (
+            <p className="admin-lock-text-warning">
+              Security Notice: Unauthorized access attempts trigger encrypted database lockdown protocols automatically.
+            </p>
+          ) : readerMode === "login" ? (
+            <p className="auth-helper-subtext">
+              First time unsealing specimens?{" "}
+              <span className="inline-gold-link" onClick={() => handleModeSwitch("register")}>
+                REGISTER NEW ARCHIVE CARD
+              </span>
+            </p>
+          ) : (
+            <p className="auth-helper-subtext">
+              Already possess an active reading license?{" "}
+              <span className="inline-gold-link" onClick={() => handleModeSwitch("login")}>
+                DIRECT SIGN IN
+              </span>
+            </p>
+          )}
+        </div>
       </div>
     </section>
   );
