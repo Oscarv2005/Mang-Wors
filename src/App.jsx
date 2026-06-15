@@ -12,13 +12,11 @@ function App() {
   const [view, setView] = useState("home");
   const [selectedManga, setSelectedManga] = useState(null);
 
-  // User Authentication Context Tracking (Initial state hydrater check)
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(() => {
     return localStorage.getItem("isUserLoggedIn") === "true";
   });
   const [targetRedirectManga, setTargetRedirectManga] = useState(null);
 
-  // SESSION PERSISTENCE EFFECT: Keeps track of admin/user routing persistence on refreshes
   useEffect(() => {
     const savedView = localStorage.getItem("currentView");
     const savedManga = localStorage.getItem("selectedManga");
@@ -31,19 +29,16 @@ function App() {
     }
   }, []);
 
-  // Structural sync router wrapper that preserves view states locally
   const handleViewChange = (newView) => {
     setView(newView);
     localStorage.setItem("currentView", newView);
     
-    // Clear out session memory cache pointers on a manual return home
     if (newView === "home") {
       localStorage.removeItem("selectedManga");
       setSelectedManga(null);
     }
   };
 
-  // Checks authentication status when a card is selected
   const handleMangaSelection = (manga) => {
     setSelectedManga(manga);
     localStorage.setItem("selectedManga", JSON.stringify(manga));
@@ -58,7 +53,6 @@ function App() {
     }
   };
 
-  // Combined Login handler state injector
   const handleUserLoginSuccess = (status) => {
     setIsUserLoggedIn(status);
     localStorage.setItem("isUserLoggedIn", status ? "true" : "false");
@@ -78,7 +72,6 @@ function App() {
 
       {view === "chapters" && <Chapters selectedManga={selectedManga} />}
 
-      {/* FIXED UNIFIED MOUNT BLOCK: Handles both user-login and navbar portal transitions */}
       {(view === "user-login" || view === "login") && (
         <Login
           setView={handleViewChange}
