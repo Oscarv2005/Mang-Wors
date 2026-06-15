@@ -8,13 +8,11 @@ function Admin() {
   const [mangas, setMangas] = useState([]);
   const [activeMangaId, setActiveMangaId] = useState(null);
 
-  // New Chapter Entry State variables
   const [chapTitle, setChapTitle] = useState("");
   const [chapPages, setChapPages] = useState("");
   const [chapPdf, setChapPdf] = useState("");
 
   const fetchMangas = () => {
-    // FIXED: Target live backend Render service
     fetch("https://mang-wors-back.onrender.com/api/mangas")
       .then((res) => res.json())
       .then((data) => {
@@ -38,7 +36,6 @@ function Admin() {
       description: mangaDesc,
     };
 
-    // FIXED: Target live backend Render service
     fetch("https://mang-wors-back.onrender.com/api/mangas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -59,7 +56,6 @@ function Admin() {
     if (!window.confirm("PURGE THIS MASTER ARCHIVE RECORD PERMANENTLY?"))
       return;
     
-    // FIXED: Target live backend Render service
     fetch(`https://mang-wors-back.onrender.com/api/mangas/${mangaId}`, {
       method: "DELETE",
     }).then(() => {
@@ -78,7 +74,6 @@ function Admin() {
       pdfUrl: chapPdf,
     };
 
-    // FIXED: Target live backend Render service
     fetch(`https://mang-wors-back.onrender.com/api/mangas/${activeMangaId}/chapters`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -94,7 +89,6 @@ function Admin() {
   };
 
   const deleteChapter = (chapterId) => {
-    // FIXED: Target live backend Render service
     fetch(
       `https://mang-wors-back.onrender.com/api/mangas/${activeMangaId}/chapters/${chapterId}`,
       {
@@ -117,7 +111,6 @@ function Admin() {
         </div>
 
         <div className="admin-workspace-grid">
-          {/* LEFT PANEL: ARCHIVE GENERATOR */}
           <div className="admin-workspace-left">
             <div className="admin-panel-box-gold">
               <div className="panel-box-header">
@@ -187,7 +180,6 @@ function Admin() {
             </div>
           </div>
 
-          {/* RIGHT PANEL: DYNAMIC CHAPTER CARDS WISE INJECTION MANAGER */}
           <div className="admin-workspace-right">
             {selectedManga ? (
               <div className="admin-media-manager">
@@ -199,7 +191,6 @@ function Admin() {
                     </div>
                   </div>
 
-                  {/* Complete Form Container Block */}
                   <form
                     onSubmit={addChapter}
                     className="panel-box-form card-wise-form"
@@ -245,7 +236,6 @@ function Admin() {
                   </form>
                 </div>
 
-                {/* Rendered Chapter Grid List View */}
                 <div className="admin-chapter-cards-grid">
                   {selectedManga.chapters &&
                   selectedManga.chapters.length > 0 ? (
