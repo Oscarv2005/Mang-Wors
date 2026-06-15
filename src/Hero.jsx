@@ -18,10 +18,7 @@ function Hero() {
       const x = e.clientX / window.innerWidth - 0.5;
       const y = e.clientY / window.innerHeight - 0.5;
 
-      // Smooth fullscreen background parallax sliding
       bgRef.current.style.transform = `translate3d(${x * -20}px, ${y * -15}px, 0) scale(1.05)`;
-
-      // Floating interface layer movement
       titleRef.current.style.transform = `translate3d(${x * 15}px, ${y * 10}px, 0)`;
     };
 
@@ -31,20 +28,17 @@ function Hero() {
 
   return (
     <section className={`leg-hero ${loaded ? "leg-loaded" : ""}`}>
-      {/* FULL COVER BACKGROUND IMAGE LAYER */}
       <div className="leg-fullscreen-bg-wrapper">
         <div
           ref={bgRef}
           className="leg-fullscreen-artwork"
           style={{ backgroundImage: `url(${bgImage})` }}
         />
-        {/* Layered luxury matrix overrides to protect text legibility */}
         <div className="leg-matte-overlay" />
         <div className="leg-dust-particles" />
         <div className="leg-nebula-glow" />
       </div>
 
-      {/* FLOATING SACRED GEOMETRY (Overlay gold lens rings) */}
       <div className="leg-portal-wrapper" aria-hidden="true">
         <div className="leg-kinetic-portal">
           <div className="leg-ring ring-outer" />
@@ -53,7 +47,6 @@ function Hero() {
         </div>
       </div>
 
-      {/* ARCHIVAL BOUNDARY STRIPS */}
       <div className="leg-side-marker leg-left-axis" aria-hidden="true">
         <span className="leg-axis-title">MANGWORS PROTOCOL</span>
         <div className="leg-axis-line" />
@@ -70,7 +63,6 @@ function Hero() {
         <span>域</span>
       </div>
 
-      {/* TYPOGRAPHY WRAPPER */}
       <div ref={titleRef} className="leg-ui-wrapper">
         <div className="leg-editorial-header">
           <span className="leg-header-jp">公式の最高峰コレクション</span>
@@ -79,9 +71,7 @@ function Hero() {
         </div>
 
         <div className="leg-title-cluster">
-          {/* Subtle stylized background kanji reading "Manga" */}
           <div className="leg-title-backdrop">漫画</div>
-          {/* Logo Heading matching your exact brand name syntax */}
           <h1 className="leg-main-heading">
             MANG<span className="leg-gold-gradient-text">WORS</span>
           </h1>
@@ -103,7 +93,6 @@ function Hero() {
           <div className="leg-crest-line" />
         </div>
 
-        {/* Tailored platform master narrative summary */}
         <p className="leg-prose-body">
           Welcome to the ultimate digital sanctuary for sequential fine art.
           Explore an exquisitely curated archive of master-editions where
@@ -120,7 +109,6 @@ function Hero() {
         </div>
       </div>
 
-      {/* METRIC RUNIC FOOTER */}
       <div className="leg-footer-metrics" aria-hidden="true">
         <span className="metric-cell">ARCHIVE COLLECTION 01</span>
         <span className="metric-divider">✧</span>
