@@ -16,7 +16,6 @@ function Contact() {
       const x = e.clientX / window.innerWidth - 0.5;
       const y = e.clientY / window.innerHeight - 0.5;
 
-      // Floating card response remains intact for smooth interactivity
       formRef.current.style.transform = `translate3d(${x * 12}px, ${y * 8}px, 0)`;
     };
 
@@ -25,14 +24,10 @@ function Contact() {
   }, []);
 
   return (
-    <section
-      className={`contact-section-prestige ${loaded ? "contact-loaded" : ""}`}
-    >
-      {/* SOLID TEXTURED BACKGROUND GUIDES (Bypasses rendering split-line bug) */}
+    <section className={`contact-section-prestige ${loaded ? "contact-loaded" : ""}`}>
       <div className="contact-bg-prestige-lines" aria-hidden="true" />
       <div className="contact-nebula-glow" aria-hidden="true" />
 
-      {/* GEOMETRIC INTERACTIVE BACKPLANE DECORATIVE RINGS */}
       <div className="contact-portal-wrapper" aria-hidden="true">
         <div className="contact-kinetic-portal">
           <div className="contact-ring ring-outer" />
@@ -40,9 +35,7 @@ function Contact() {
         </div>
       </div>
 
-      {/* CORE FRAME CONTAINER LEDGER */}
       <div ref={formRef} className="contact-wrapper-prestige">
-        {/* Subtle decorative geometric corners */}
         <div className="contact-gate-pin pin-tl" />
         <div className="contact-gate-pin pin-br" />
 
@@ -55,7 +48,6 @@ function Contact() {
         </div>
 
         <div className="contact-grid-prestige">
-          {/* Left Block: Elite Editorial Imprint Grid */}
           <div className="contact-imprint-table-gold">
             <div className="contact-row-gold">
               <div className="contact-label-gold">
@@ -63,10 +55,7 @@ function Contact() {
                 <span className="label-gold-en">EMAIL DIRECT</span>
               </div>
               <div className="contact-value-gold">
-                <a
-                  href="mailto:yourmail@gmail.com"
-                  className="contact-link-gold"
-                >
+                <a href="mailto:yourmail@gmail.com" className="contact-link-gold">
                   yourmail@gmail.com
                 </a>
               </div>
@@ -103,7 +92,6 @@ function Contact() {
             </div>
           </div>
 
-          {/* Right Block: Luxury Editorial Note Sidebar */}
           <div className="contact-editorial-sidebar-gold">
             <div className="sidebar-gold-brackets">
               <span className="bracket-gold">【</span>
