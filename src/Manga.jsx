@@ -6,7 +6,6 @@ function Manga({ setView, setSelectedManga }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // FIXED: Removed the accidental duplicated `")` syntax residue at the end of the URL string
     fetch("https://mang-wors-back.onrender.com/api/mangas")
       .then((res) => {
         if (!res.ok) {
@@ -16,7 +15,7 @@ function Manga({ setView, setSelectedManga }) {
       })
       .then((data) => {
         setMangas(data);
-        setLoading(false);
+        loading && setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching manga grid data:", err);
@@ -47,7 +46,6 @@ function Manga({ setView, setSelectedManga }) {
         <div className="manga-container">
           {mangas.map((manga, index) => (
             <div className="manga-card" key={manga._id}>
-              {/* Luxury Gilded Framework Accents */}
               <div className="manga-card-gold-corner top-left" />
               <div className="manga-card-gold-corner bottom-right" />
 
