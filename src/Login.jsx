@@ -7,24 +7,19 @@ function Login({
   targetRedirectManga,
   setSelectedManga,
 }) {
-  // Identity Segment Track: 'reader' or 'admin'
   const [identityRole, setIdentityRole] = useState("reader");
-  // Sub-Authentication Phase for Readers: 'login' or 'register'
   const [readerMode, setReaderMode] = useState("login");
 
-  // Form Input Coordinates
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // System State Messaging Pointers
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Clean transition switcher between modes
   const handleRoleToggle = (role) => {
     setIdentityRole(role);
-    setReaderMode("login"); // Reset back to default sub-login screen on tab change
+    setReaderMode("login");
     setErrorMessage("");
     setSuccessMessage("");
     setUsername("");
@@ -37,7 +32,6 @@ function Login({
     setErrorMessage("");
     setSuccessMessage("");
 
-    // --- PIPELINE 1: SECURE ADMINISTRATIVE IDENTITY CLEARANCE ---
     if (identityRole === "admin") {
       fetch("https://mang-wors-back.onrender.com/api/admin/login", {
         method: "POST",
@@ -54,6 +48,8 @@ function Login({
           if (data.success) {
             setSuccessMessage("ADMINISTRATIVE VERIFICATION PASSED. BOOTING CONSOLE...");
             setTimeout(() => {
+              localStorage.setItem("isAdminLoggedIn", "true");
+              localStorage.setItem("currentView", "admin");
               setView("admin");
             }, 1000);
           } else {
@@ -67,7 +63,6 @@ function Login({
       return;
     }
 
-    // --- PIPELINE 2: READER ACCOUNT NEW REGISTRATION ---
     if (readerMode === "register") {
       if (password !== confirmPassword) {
         setErrorMessage("PASSWORDS DO NOT MATCH. VERIFY SECURE STRINGS.");
@@ -87,7 +82,6 @@ function Login({
       return;
     }
 
-    // --- PIPELINE 3: EXISTING READER DIRECT SIGN IN ---
     setSuccessMessage("WELCOME BACK, READER. RETRIEVING INTERACTIVE PORTFOLIO...");
     setTimeout(() => {
       setIsUserLoggedIn(true);
@@ -105,11 +99,9 @@ function Login({
       <div className="login-bg-lines-prestige" aria-hidden="true" />
 
       <div className="login-container-gold">
-        {/* Prestige Gilded Boundary Corner Clips */}
         <div className="login-gate-pin pin-tl" />
         <div className="login-gate-pin pin-br" />
 
-        {/* TOP COMPONENT: Identity Segment Toggle Matrix */}
         <div className="identity-segment-bar-prestige">
           <button
             type="button"
@@ -127,7 +119,6 @@ function Login({
           </button>
         </div>
 
-        {/* HEADER SECTION */}
         <div className="login-header-gold">
           <span className="login-subtitle-gold">
             {identityRole === "admin" ? "管理者コンソール // SECURE PORTAL" : "会員システム // MEMBERS INTERFACE"}
@@ -142,7 +133,6 @@ function Login({
           <div className="login-rule-gold" />
         </div>
 
-        {/* FEEDBACK & STATUS MESSAGE CARDS */}
         {errorMessage && (
           <div className="login-error-box-gold">
             <span className="error-icon-gold">✦</span>
@@ -157,7 +147,6 @@ function Login({
           </div>
         )}
 
-        {/* CORE SECURE ENTRY FORM FORMATION */}
         <form onSubmit={handleAuthPipelineSubmit} className="login-form-gold">
           <div className="login-input-group-gold">
             <label>
@@ -183,7 +172,6 @@ function Login({
             />
           </div>
 
-          {/* DYNAMIC FIELD: Slides open instantly when readerMode state shifts to register */}
           {identityRole === "reader" && readerMode === "register" && (
             <div className="login-input-group-gold field-fade-in-prestige">
               <label>CONFIRM SECURE PASSWORD</label>
@@ -209,7 +197,6 @@ function Login({
           </button>
         </form>
 
-        {/* FOOTER DIALOG: Swaps mode state variables instantly onClick */}
         <div className="login-footer-notice-gold">
           {identityRole === "admin" ? (
             <p className="admin-lock-text-warning">
