@@ -1,24 +1,20 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
+import { API_BASE_URL } from "./App.jsx";
 
 function Manga({ setView, setSelectedManga }) {
   const [mangas, setMangas] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://mang-wors-back.onrender.com/api/mangas")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP network error! Status: ${res.status}`);
-        }
-        return res.json();
-      })
+    fetch(`${API_BASE_URL}/api/mangas`)
+      .then((res) => res.json())
       .then((data) => {
         setMangas(data);
-        loading && setLoading(false);
+        setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching manga grid data:", err);
+        console.error("Error fetching manga:", err);
         setLoading(false);
       });
   }, []);
@@ -26,7 +22,6 @@ function Manga({ setView, setSelectedManga }) {
   return (
     <section className="manga-section">
       <div className="manga-section-ambient" aria-hidden="true" />
-
       <div className="manga-section-header">
         <span className="manga-section-subtitle">特選金装版 ARCHIVES</span>
         <h1 className="manga-title">MASTER COMPENDIUM</h1>
@@ -48,25 +43,20 @@ function Manga({ setView, setSelectedManga }) {
             <div className="manga-card" key={manga._id}>
               <div className="manga-card-gold-corner top-left" />
               <div className="manga-card-gold-corner bottom-right" />
-
               <div className="manga-card-serial-badge">
                 VOL_{(index + 1).toString().padStart(2, "0")}
               </div>
-
               <div className="manga-image-wrapper">
                 <img src={manga.image} alt={manga.title} loading="lazy" />
                 <div className="manga-card-matte-overlay" />
               </div>
-
               <div className="manga-content">
                 <div className="manga-card-meta">
                   <span className="manga-tag-gold-jp">至高</span>
                   <span className="manga-card-dot-separator" />
                   <span className="manga-tag-prestige-en">DE LUXE PRESS</span>
                 </div>
-
                 <h2>{manga.title}</h2>
-
                 <button
                   className="manga-read-btn-gold"
                   onClick={() => setSelectedManga(manga)}
