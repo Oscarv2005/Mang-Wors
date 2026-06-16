@@ -1749,7 +1749,7 @@ body {
 }
 
 /* ==========================================================================
-   7. SECURE IDENTITY PORTAL (GOLD & OBSIDIAN PRESTIGE)
+   2. SECURE IDENTITY PORTAL (CONSOLIDATED)
    ========================================================================== */
 .login-section-gold {
   min-height: 100vh;
@@ -1762,329 +1762,112 @@ body {
   overflow: hidden;
 }
 
-.login-bg-lines-prestige {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: 
-    linear-gradient(to right, rgba(212, 175, 55, 0.006) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(212, 175, 55, 0.006) 1px, transparent 1px);
-  background-size: 60px 60px;
-  background-position: center;
-}
-
 .login-container-gold {
   width: 100%;
   max-width: 440px;
   background: #0b0b0d;
   padding: 50px 44px;
-  position: relative;
   border: 1px solid rgba(212, 175, 55, 0.1);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
 }
 
-.login-header-gold {
-  text-align: center;
-  margin-bottom: 36px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .login-title-gold {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-manga);
   font-size: 26px;
   font-weight: 900;
   letter-spacing: 2px;
   color: var(--text-pure);
   text-transform: uppercase;
-  margin: 0;
-}
-
-.auth-mode-selector-tabs {
-  display: flex;
-  background: rgba(5, 5, 6, 0.4);
-  border: 1px solid rgba(212, 175, 55, 0.08);
-  padding: 4px;
-  margin-bottom: 28px;
-  gap: 4px;
-}
-
-.auth-tab-btn {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-}
-
-.auth-tab-btn.active-tab {
-  background: rgba(212, 175, 55, 0.05);
-  color: #dfba73;
-  border: 1px solid rgba(212, 175, 55, 0.15);
-}
-
-.login-error-box-gold {
-  background: rgba(255, 50, 50, 0.03);
-  border: 1px solid rgba(255, 50, 50, 0.15);
-  padding: 14px;
-  margin-bottom: 20px;
-  color: #ff8787;
-  font-size: 11px;
   text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.login-success-box-gold {
-  background: rgba(212, 175, 55, 0.03);
-  border: 1px solid rgba(212, 175, 55, 0.15);
-  padding: 14px;
-  margin-bottom: 20px;
-  color: #f3e5ab;
-  font-size: 11px;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.login-form-gold { display: flex; flex-direction: column; gap: 20px; }
-
-.login-input-group-gold label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-  display: block;
-}
-
-.login-input-group-gold input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  background: #050506;
-  color: var(--text-pure);
-  font-size: 13px;
-  outline: none;
-}
-
-.login-submit-btn-gold {
-  background: rgba(212, 175, 55, 0.05);
-  color: #f3e5ab;
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  padding: 14px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  transition: all 0.3s ease;
-  margin-top: 8px;
-}
-
-.login-submit-btn-gold:hover {
-  background: #dfba73;
-  color: #000;
-}
-
-/* Authentication Tabs */
-.auth-mode-selector-tabs {
-  display: flex;
-  background: rgba(5, 5, 6, 0.4);
-  border: 1px solid rgba(212, 175, 55, 0.08);
-  padding: 4px;
-  margin-bottom: 28px;
-  gap: 4px;
-}
-
-.auth-tab-btn {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-}
-
-.auth-tab-btn.active-tab {
-  background: rgba(212, 175, 55, 0.05);
-  color: #dfba73;
-  border: 1px solid rgba(212, 175, 55, 0.15);
-}
-
-/* Error/Success Messages */
-.login-error-box-gold {
-  background: rgba(255, 50, 50, 0.03);
-  border: 1px solid rgba(255, 50, 50, 0.15);
-  padding: 14px;
-  margin-bottom: 20px;
-  color: #ff8787;
-  font-size: 11px;
-  text-align: center;
-}
-
-.login-success-box-gold {
-  background: rgba(212, 175, 55, 0.03);
-  border: 1px solid rgba(212, 175, 55, 0.15);
-  padding: 14px;
-  margin-bottom: 20px;
-  color: #f3e5ab;
-  font-size: 11px;
-  text-align: center;
-}
-
-/* Form Styles */
-.login-form-gold { display: flex; flex-direction: column; gap: 20px; }
-
-.login-input-group-gold label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-  display: block;
-}
-
-.login-input-group-gold input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  background: #050506;
-  color: var(--text-pure);
-  font-size: 13px;
-  outline: none;
-}
-
-.login-submit-btn-gold {
-  background: rgba(212, 175, 55, 0.05);
-  color: #f3e5ab;
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  padding: 14px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  transition: all 0.3s ease;
-}
-
-.login-submit-btn-gold:hover {
-  background: #dfba73;
-  color: #000;
-}
-
-.success-icon-gold {
-  color: #dfba73;
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.login-success-box-gold p {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: #f3e5ab;
-  margin: 0;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-/* Micro smooth entrance transitions */
-.field-fade-in-prestige {
-  animation: entry-lift 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* ==========================================================================
-   UNIFIED HUB AUTHENTICATION OVERLAYS
-   ========================================================================== */
-.identity-segment-bar-prestige {
-  display: flex;
-  background: #040405;
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  padding: 4px;
   margin-bottom: 30px;
+}
+
+.auth-mode-selector-tabs {
+  display: flex;
+  background: rgba(5, 5, 6, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  padding: 4px;
+  margin-bottom: 28px;
   gap: 4px;
 }
 
-.identity-segment-btn {
+.auth-tab-btn {
   flex: 1;
   background: transparent;
   border: none;
-  color: #8c8c96;
-  font-size: 11px;
+  color: var(--text-muted);
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 2px;
-  padding: 12px 6px;
+  letter-spacing: 1.5px;
+  padding: 12px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s ease;
   text-transform: uppercase;
 }
 
-.identity-segment-btn:hover {
-  color: #f3e5ab;
-  background: rgba(212, 175, 55, 0.02);
-}
-
-.identity-segment-btn.active-segment {
-  background: rgba(212, 175, 55, 0.06);
+.auth-tab-btn.active-tab {
+  background: rgba(212, 175, 55, 0.05);
   color: #dfba73;
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.15);
 }
 
-.auth-helper-subtext {
+.login-error-box-gold {
+  background: rgba(255, 50, 50, 0.03);
+  border: 1px solid rgba(255, 50, 50, 0.15);
+  padding: 14px;
+  margin-bottom: 20px;
+  color: #ff8787;
   font-size: 11px;
-  color: #8c8c96;
-  margin: 0;
-  letter-spacing: 0.5px;
   text-align: center;
+  text-transform: uppercase;
 }
 
-.inline-gold-link {
-  color: #dfba73;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-  margin-left: 4px;
-  transition: color 0.3s ease;
-  border-bottom: 1px dashed rgba(212, 175, 55, 0.4);
-  padding-bottom: 1px;
-}
-
-.inline-gold-link:hover {
+.login-success-box-gold {
+  background: rgba(212, 175, 55, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  padding: 14px;
+  margin-bottom: 20px;
   color: #f3e5ab;
-  border-bottom-color: #f3e5ab;
-}
-
-.admin-lock-text-warning {
-  font-size: 10px;
-  line-height: 1.5;
-  color: rgba(212, 175, 55, 0.4);
-  margin: 0;
+  font-size: 11px;
   text-align: center;
-  letter-spacing: 0.5px;
 }
 
-@keyframes entry-lift {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+.login-form-gold { display: flex; flex-direction: column; gap: 20px; }
+
+.login-input-group-gold label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
 }
 
-@media (max-width: 480px) {
-  .login-container-gold { padding: 36px 24px; }
-  .login-title-gold { font-size: 22px; }
+.login-input-group-gold input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #050506;
+  color: var(--text-pure);
+  font-size: 13px;
+  outline: none;
+}
+
+.login-submit-btn-gold {
+  background: rgba(212, 175, 55, 0.05);
+  color: #f3e5ab;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 14px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.login-submit-btn-gold:hover {
+  background: #dfba73;
+  color: #000;
 }
 
 /* ==========================================================================
