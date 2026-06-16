@@ -1783,29 +1783,12 @@ body {
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
 }
 
-.login-gate-pin {
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  border: 1px solid #dfba73;
-  opacity: 0.3;
-}
-.pin-tl { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
-.pin-br { bottom: 10px; right: 10px; border-top: 0; border-left: 0; }
-
 .login-header-gold {
   text-align: center;
   margin-bottom: 36px;
-}
-
-.login-subtitle-gold {
-  font-family: var(--font-jp);
-  color: #dfba73;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2.5px;
-  display: block;
-  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .login-title-gold {
@@ -1815,13 +1798,100 @@ body {
   letter-spacing: 2px;
   color: var(--text-pure);
   text-transform: uppercase;
+  margin: 0;
 }
 
-.login-rule-gold {
-  width: 40px;
-  height: 1px;
-  background: rgba(212, 175, 55, 0.3);
-  margin: 16px auto 0;
+.auth-mode-selector-tabs {
+  display: flex;
+  background: rgba(5, 5, 6, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  padding: 4px;
+  margin-bottom: 28px;
+  gap: 4px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.auth-tab-btn.active-tab {
+  background: rgba(212, 175, 55, 0.05);
+  color: #dfba73;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.login-error-box-gold {
+  background: rgba(255, 50, 50, 0.03);
+  border: 1px solid rgba(255, 50, 50, 0.15);
+  padding: 14px;
+  margin-bottom: 20px;
+  color: #ff8787;
+  font-size: 11px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.login-success-box-gold {
+  background: rgba(212, 175, 55, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  padding: 14px;
+  margin-bottom: 20px;
+  color: #f3e5ab;
+  font-size: 11px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.login-form-gold { display: flex; flex-direction: column; gap: 20px; }
+
+.login-input-group-gold label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.login-input-group-gold input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #050506;
+  color: var(--text-pure);
+  font-size: 13px;
+  outline: none;
+}
+
+.login-submit-btn-gold {
+  background: rgba(212, 175, 55, 0.05);
+  color: #f3e5ab;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 14px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+.login-submit-btn-gold:hover {
+  background: #dfba73;
+  color: #000;
 }
 
 /* Authentication Tabs */
