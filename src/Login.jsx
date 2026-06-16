@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./index.css";
+import { API_BASE_URL } from "./App.jsx";
 
 function Login({ setView, setIsUserLoggedIn, targetRedirectManga, setSelectedManga }) {
   const [username, setUsername] = useState("");
@@ -8,8 +9,7 @@ function Login({ setView, setIsUserLoggedIn, targetRedirectManga, setSelectedMan
 
   const handleLogin = (e) => {
     e.preventDefault();
-
-    fetch("https://mang-wors-back.onrender.com/api/login", {
+    fetch(`${API_BASE_URL}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -19,9 +19,7 @@ function Login({ setView, setIsUserLoggedIn, targetRedirectManga, setSelectedMan
         if (data.success) {
           setIsUserLoggedIn(true);
           localStorage.setItem("isUserLoggedIn", "true");
-          
           if (data.role === "admin") {
-            localStorage.setItem("currentView", "admin");
             setView("admin");
           } else {
             setView(targetRedirectManga ? "chapters" : "home");
@@ -39,20 +37,17 @@ function Login({ setView, setIsUserLoggedIn, targetRedirectManga, setSelectedMan
       <div className="login-container-gold">
         <div className="login-gate-pin pin-tl" />
         <div className="login-gate-pin pin-br" />
-        
         <div className="login-header-gold">
           <span className="login-subtitle-gold">IDENTIFICATION GATE</span>
           <h1 className="login-title-gold">ARCHIVE ACCESS</h1>
           <div className="login-rule-gold" />
         </div>
-        
         {errorMessage && (
           <div className="login-error-box-gold">
             <span className="error-icon-gold">✦</span>
             <p>{errorMessage}</p>
           </div>
         )}
-
         <form onSubmit={handleLogin} className="login-form-gold">
           <div className="login-input-group-gold">
             <label>IDENTITY ID / EMAIL</label>
