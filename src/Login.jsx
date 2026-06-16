@@ -39,17 +39,65 @@ function Login({ setView, setIsUserLoggedIn, targetRedirectManga }) {
 
   return (
     <section className="login-section-gold">
+      <div className="login-bg-lines-prestige" aria-hidden="true" />
       <div className="login-container-gold">
-        <h1>{isRegistering ? "REGISTER FIRST" : "LOGIN"}</h1>
-        <form onSubmit={handleSubmit}>
-          <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <button type="submit">{isRegistering ? "REGISTER" : "LOGIN"}</button>
+        <div className="login-gate-pin pin-tl" />
+        <div className="login-gate-pin pin-br" />
+        
+        <div className="login-header-gold">
+          <span className="login-subtitle-gold">
+            {isRegistering ? "CREATE IDENTITY" : "IDENTIFICATION GATE"}
+          </span>
+          <h1 className="login-title-gold">
+            {isRegistering ? "REGISTER ACCESS" : "ARCHIVE ACCESS"}
+          </h1>
+          <div className="login-rule-gold" />
+        </div>
+
+        <div className="auth-mode-selector-tabs">
+          <button 
+            className={`auth-tab-btn ${!isRegistering ? "active-tab" : ""}`} 
+            onClick={() => setIsRegistering(false)}
+          >
+            LOGIN
+          </button>
+          <button 
+            className={`auth-tab-btn ${isRegistering ? "active-tab" : ""}`} 
+            onClick={() => setIsRegistering(true)}
+          >
+            REGISTER
+          </button>
+        </div>
+
+        {message && (
+          <div className="login-error-box-gold">
+            <p>{message}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="login-form-gold">
+          <div className="login-input-group-gold">
+            <label>IDENTITY ID / EMAIL</label>
+            <input 
+              type="text" 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              required 
+            />
+          </div>
+          <div className="login-input-group-gold">
+            <label>SECURITY PHRASE</label>
+            <input 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              required 
+            />
+          </div>
+          <button type="submit" className="login-submit-btn-gold">
+            {isRegistering ? "INITIATE REGISTRATION" : "AUTHENTICATE"} ⟶
+          </button>
         </form>
-        {message && <p>{message}</p>}
-        <button onClick={() => setIsRegistering(!isRegistering)}>
-          {isRegistering ? "Already have an account? Login" : "Need an account? Register"}
-        </button>
       </div>
     </section>
   );
