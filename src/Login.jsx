@@ -1,58 +1,2573 @@
-import React, { useState } from "react";
-import "./index.css";
-import { API_BASE_URL } from "./App.jsx";
+/* ==========================================================================
+   1. GLOBAL RESETS & DESIGN SYSTEM VARIABLES
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Cinzel:wght@600;900&family=Noto+Serif+JP:wght@400;700;900&display=swap');
 
-function Login({ setView, setIsUserLoggedIn, targetRedirectManga }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [isRegistering, setIsRegistering] = useState(true);
-  const [message, setMessage] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const endpoint = isRegistering ? "/api/register" : "/api/login";
-    
-    try {
-      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      const data = await res.json();
-      
-      if (data.success) {
-        if (isRegistering) {
-          setIsRegistering(false);
-          setMessage("Registration successful! Now login.");
-        } else {
-          setIsUserLoggedIn(true);
-          localStorage.setItem("isUserLoggedIn", "true");
-          setView(targetRedirectManga ? "chapters" : "home");
-        }
-      } else {
-        setMessage(data.message || "Operation failed.");
-      }
-    } catch {
-      setMessage("Server connection error.");
-    }
-  };
-
-  return (
-    <section className="login-section-gold">
-      <div className="login-container-gold">
-        <h1>{isRegistering ? "REGISTER FIRST" : "LOGIN"}</h1>
-        <form onSubmit={handleSubmit}>
-          <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <button type="submit">{isRegistering ? "REGISTER" : "LOGIN"}</button>
-        </form>
-        {message && <p>{message}</p>}
-        <button onClick={() => setIsRegistering(!isRegistering)}>
-          {isRegistering ? "Already have an account? Login" : "Need an account? Register"}
-        </button>
-      </div>
-    </section>
-  );
+:root {
+  --bg-primary: #0a0a0b;
+  --bg-secondary: #121214;
+  --accent-red: #ff2a2a;
+  --accent-red-dim: rgba(255, 42, 42, 0.15);
+  --text-pure: #ffffff;
+  --text-muted: #8a8a93;
+  --manga-border: #222226;
+  --font-sans: 'Space Grotesk', sans-serif;
+  --font-manga: 'Cinzel', serif;
+  --font-jp: 'Noto Serif JP', serif;
 }
 
-export default Login;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-sans);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-pure);
+  overflow-x: hidden;
+  letter-spacing: -0.02em;
+}
+
+/* Custom Manga Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-red);
+}
+
+/* ==========================================================================
+   2. PRESTIGE OBSIDIAN & GOLD NAVBAR (WITH ALL LINKS)
+   ========================================================================== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to bottom, rgba(5, 5, 6, 0.95) 40%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 32px 60px;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.05);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navbar.scrolled {
+  padding: 18px 60px;
+  background: rgba(4, 4, 5, 0.98);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* Master Brand Identity */
+.logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 900;
+  font-size: 24px;
+  letter-spacing: 1px;
+  color: var(--text-pure);
+  cursor: pointer;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.logo span {
+  background: linear-gradient(to right, #f3e5ab, #dfba73, #c5a059);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  margin-left: 1px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 45px;
+}
+
+.nav-links li {
+  position: relative;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+.nav-links li:hover {
+  color: #f3e5ab; /* Warm gold tint on focus */
+}
+
+/* Gilded slide line animation underneath active links */
+.nav-links li::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -6px;
+  left: 0;
+  background: linear-gradient(to right, #dfba73, #c5a059);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-links li:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Premium Gold Action Button */
+.nav-login-btn {
+  background: rgba(212, 175, 55, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-btn-inner {
+  display: block;
+  padding: 10px 24px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #f3e5ab;
+}
+
+.nav-login-btn:hover {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 100%);
+  border-color: #dfba73;
+  box-shadow: 0 0 25px rgba(223, 186, 115, 0.2);
+}
+
+.nav-login-btn:hover .nav-btn-inner {
+  color: #000000;
+  font-weight: 700;
+}
+
+.desktop-only {
+  display: block;
+}
+
+.mobile-only-btn {
+  display: none;
+}
+
+
+.nav-logout-btn-gold {
+  border-color: rgba(239, 68, 68, 0.2) !important; 
+}
+
+.nav-logout-btn-gold .nav-btn-inner {
+  color: #ff6b6b !important;
+}
+
+.nav-logout-btn-gold::before {
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.15), transparent) !important;
+}
+
+.nav-logout-btn-gold:hover {
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15) !important;
+  background: rgba(239, 68, 68, 0.03) !important;
+}
+
+.nav-logout-btn-gold:hover .nav-btn-inner {
+  color: #ff8787 !important;
+  letter-spacing: 2px;
+}
+
+/* Responsive UI Settings Overrides */
+@media (max-width: 768px) {
+  .navbar, .navbar.scrolled {
+    padding: 20px 24px;
+  }
+  
+  .desktop-only {
+    display: none !important;
+  }
+  
+  .mobile-only-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .mobile-only-btn .nav-login-btn {
+    width: 100%;
+  }
+  
+  .mobile-only-btn .nav-btn-inner {
+    text-align: center;
+    padding: 14px;
+    width: 100%;
+  }
+
+  /* Hamburger Menu Button Settings */
+  .menu-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 22px;
+    height: 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 1001;
+  }
+
+  .menu-toggle span {
+    width: 100%;
+    height: 1px;
+    background-color: var(--text-pure);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .menu-toggle.active span {
+    background-color: #dfba73;
+  }
+
+  .menu-toggle.active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+  .menu-toggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  /* Mobile Drawer Sliding Layout */
+  .nav-links {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background-color: #050506;
+    border-left: 1px solid rgba(212, 175, 55, 0.15);
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 35px;
+    padding: 40px;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.9);
+    transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .nav-links.open {
+    right: 0;
+  }
+
+  .nav-links li {
+    font-size: 18px;
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   3. MYTHIC GOLD HERO - FULL COVER EXTENSION
+   ========================================================================== */
+.leg-hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 900px;
+  background: #040405;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+}
+
+/* Fullscreen Background Image Pipeline */
+.leg-fullscreen-bg-wrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.leg-fullscreen-artwork {
+  position: absolute;
+  inset: -5%; /* Room for parallax sliding wiggle */
+  width: 110%;
+  height: 110%;
+  background-size: cover;
+  background-position: center 25%;
+  filter: grayscale(100%) sepia(25%) contrast(130%) brightness(30%);
+  will-change: transform;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Protects text clarity by darkening edges and backing blocks */
+.leg-matte-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(4, 4, 5, 0.2) 0%, rgba(4, 4, 5, 0.85) 80%);
+  z-index: 2;
+}
+
+.leg-dust-particles {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(rgba(223, 186, 115, 0.12) 1px, transparent 1px),
+    radial-gradient(rgba(243, 229, 171, 0.06) 1.5px, transparent 1.5px);
+  background-size: 50px 50px, 110px 110px;
+  opacity: 0.7;
+  z-index: 3;
+}
+
+.leg-nebula-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw;
+  height: 80vw;
+  background: radial-gradient(circle, rgba(197, 160, 89, 0.05) 0%, transparent 70%);
+  z-index: 4;
+}
+
+/* Floating Golden Rings Overlay Frame */
+.leg-portal-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.leg-kinetic-portal {
+  position: relative;
+  width: min(650px, 55vw);
+  height: min(650px, 55vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leg-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.ring-outer {
+  inset: 0px;
+  border-style: dashed;
+  animation: leg-spin 50s linear infinite;
+}
+
+.ring-mid {
+  inset: 40px;
+  border-color: rgba(243, 229, 171, 0.2);
+  box-shadow: 0 0 50px rgba(197, 160, 89, 0.03);
+}
+
+.ring-inner {
+  inset: 100px;
+  border-width: 1px;
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+/* Foreground UI Elements */
+.leg-main-heading {
+  font-family: 'Space Grotesk', 'Cinzel', serif; /* Inherits clean layout weight with serif fallbacks */
+  font-weight: 900;
+  font-size: clamp(54px, 9vw, 110px);
+  color: #ffffff;
+  letter-spacing: 2px; /* Tightened letter tracking to match structural logo layout */
+  line-height: 0.95;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.leg-gold-gradient-text {
+  display: inline-block;
+  background: linear-gradient(to right, #f3e5ab 0%, #dfba73 50%, #c5a059 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 2px;
+}
+ 
+.leg-ui-wrapper {
+  position: relative;
+  z-index: 10;
+  max-width: 820px;
+  text-align: center;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  will-change: transform;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.leg-editorial-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: rgba(4, 4, 5, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  padding: 6px 14px;
+  backdrop-filter: blur(8px);
+}
+
+.leg-header-jp {
+  font-family: var(--font-jp);
+  font-size: 10px;
+  color: #dfba73;
+  letter-spacing: 3px;
+}
+
+.leg-header-dot {
+  width: 3px;
+  height: 3px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+}
+
+.leg-header-en {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: var(--text-muted);
+}
+
+.leg-title-cluster {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.leg-title-backdrop {
+  position: absolute;
+  top: -45%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-jp);
+  font-size: 95px;
+  font-weight: 900;
+  color: rgba(212, 175, 55, 0.025);
+  letter-spacing: 20px;
+  text-indent: 20px;
+  user-select: none;
+  z-index: -1;
+}
+
+.leg-main-heading {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: clamp(54px, 9vw, 110px);
+  color: #ffffff;
+  letter-spacing: 4px;
+  line-height: 0.95;
+  margin: 0;
+}
+
+.leg-gold-gradient-text {
+  display: block;
+  background: linear-gradient(to right, #f3e5ab 0%, #dfba73 50%, #c5a059 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 8px;
+  text-indent: 8px;
+}
+
+.leg-crest-separator {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 24px;
+}
+
+.leg-crest-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.3), transparent);
+}
+
+.leg-crest-icon {
+  width: 12px;
+  height: 12px;
+  color: #dfba73;
+}
+
+.leg-prose-body {
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.8;
+  color: #b5b5be;
+  max-width: 480px;
+  margin: 0 0 40px 0;
+  text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+}
+
+.leg-cta-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.leg-btn-prestige {
+  position: relative;
+  background: #ffffff;
+  color: #000000;
+  border: none;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 18px 38px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.leg-btn-shimmer-line {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(243, 229, 171, 0.4), transparent);
+  transform: skewX(-25deg);
+}
+
+.leg-btn-prestige:hover .leg-btn-shimmer-line {
+  animation: leg-button-shimmer 1.5s infinite linear;
+}
+
+.leg-btn-prestige:hover {
+  background: #dfba73;
+  box-shadow: 0 10px 30px rgba(223, 186, 115, 0.3);
+}
+
+.leg-btn-outline {
+  background: rgba(4, 4, 5, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #f3e5ab;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 17px 36px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.leg-btn-outline:hover {
+  border-color: #dfba73;
+  background: rgba(223, 186, 115, 0.08);
+}
+
+/* Sidelights & Layout Anchors */
+.leg-side-marker {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+}
+
+.leg-left-axis { left: 50px; top: 50%; transform: translateY(-50%); flex-direction: column; }
+.leg-axis-title { font-size: 9px; font-weight: 700; letter-spacing: 3px; color: rgba(212, 175, 55, 0.3); writing-mode: vertical-rl; }
+.leg-axis-line { width: 1px; height: 60px; background: rgba(212, 175, 55, 0.15); margin: 16px 0; }
+.leg-axis-serial { font-size: 8px; color: var(--text-muted); writing-mode: vertical-rl; letter-spacing: 1px; }
+
+.leg-right-axis {
+  right: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font-jp);
+  font-weight: 900;
+  font-size: 13px;
+  color: rgba(212, 175, 55, 0.12);
+  user-select: none;
+}
+
+.leg-footer-metrics {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+}
+
+.metric-cell { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: rgba(255, 255, 255, 0.25); }
+.metric-divider { font-size: 8px; color: rgba(212, 175, 55, 0.3); }
+
+@keyframes leg-spin { to { transform: rotate(360deg); } }
+@keyframes leg-button-shimmer { 100% { left: 200%; } }
+
+@media (max-width: 1024px) {
+  .leg-side-marker, .leg-portal-wrapper { display: none !important; }
+}
+
+@media (max-width: 576px) {
+  .leg-cta-group { flex-direction: column; width: 100%; }
+  .leg-btn-prestige, .leg-btn-outline { width: 100%; display: flex; justify-content: center; }
+  .leg-footer-metrics { display: none; }
+} 
+
+/* ==========================================================================
+   4. MANGA VAULT GRID (GOLD & OBSIDIAN PRESTIGE)
+   ========================================================================== */
+.manga-section {
+  background: #050506;
+  padding: 140px 60px 120px;
+  position: relative;
+  border-top: 1px solid rgba(212, 175, 55, 0.08);
+}
+
+/* Background atmospheric glow layout */
+.manga-section-ambient {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90vw;
+  height: 500px;
+  background: radial-gradient(circle at top center, rgba(197, 160, 89, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.manga-section-header {
+  text-align: center;
+  margin-bottom: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 5;
+}
+
+.manga-section-subtitle {
+  font-family: var(--font-jp);
+  color: #dfba73;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+}
+
+.manga-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(30px, 3.5vw, 42px);
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--text-pure);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.manga-header-line-gold {
+  width: 100px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.3), transparent);
+  margin-top: 24px;
+}
+
+/* Luxury Structural Framework Grid Layout */
+.manga-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 5;
+}
+
+/* Premium Gilded Book Frame Component */
+.manga-card {
+  background: #0b0b0d;
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+/* Subtle corner parameters simulating gold leaf corners */
+.manga-card-gold-corner {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1px solid #dfba73;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.15;
+  transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+.manga-card-gold-corner.top-left { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
+.manga-card-gold-corner.bottom-right { bottom: 12px; right: 12px; border-top: 0; border-left: 0; }
+
+.manga-card:hover .manga-card-gold-corner {
+  opacity: 1;
+  width: 12px;
+  height: 12px;
+}
+
+.manga-card-serial-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 12;
+  background: #050506;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  color: #dfba73;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 4px 10px;
+  font-family: var(--font-sans);
+  letter-spacing: 1.5px;
+}
+
+.manga-image-wrapper {
+  width: 100%;
+  height: 440px;
+  overflow: hidden;
+  position: relative;
+  background: #030304;
+}
+
+.manga-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) sepia(10%) contrast(110%) brightness(40%);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+}
+
+.manga-card-matte-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #0b0b0d 0%, transparent 50%);
+  z-index: 5;
+}
+
+.manga-card:hover img {
+  transform: scale(1.03);
+  filter: grayscale(20%) sepia(5%) contrast(115%) brightness(65%);
+}
+
+.manga-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+}
+
+/* ==========================================================================
+   ISOLATED MANGA CARD MODULE (GOLD & OBSIDIAN PRESTIGE)
+   ========================================================================== */
+.manga-card-isolated {
+  background: #0b0b0d;
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  width: 100%;
+  max-width: 360px; /* Restricts maximum expansion for gallery sizing */
+}
+
+/* Gilded corner frame parameters */
+.manga-card-isolated .manga-card-gold-corner {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1px solid #dfba73;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.15;
+  transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+.manga-card-isolated .manga-card-gold-corner.top-left { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
+.manga-card-isolated .manga-card-gold-corner.bottom-right { bottom: 12px; right: 12px; border-top: 0; border-left: 0; }
+
+/* Interactive Hover States across the whole card boundary */
+.manga-card-isolated:hover {
+  transform: translateY(-6px);
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+}
+
+.manga-card-isolated:hover .manga-card-gold-corner {
+  opacity: 1;
+  width: 12px;
+  height: 12px;
+}
+
+/* Absolute Archival Badge */
+.manga-card-isolated .manga-card-serial-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 12;
+  background: #050506;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  color: #dfba73;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 4px 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 1.5px;
+}
+
+/* Image Viewport Pipeline Settings */
+.manga-card-isolated .manga-image-wrapper {
+  width: 100%;
+  height: 440px; /* Balance proportion for standard tankobon book metrics */
+  overflow: hidden;
+  position: relative;
+  background: #030304;
+}
+
+.manga-card-isolated .manga-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) sepia(10%) contrast(110%) brightness(40%);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+}
+
+.manga-card-isolated .manga-card-matte-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #0b0b0d 0%, transparent 50%);
+  z-index: 5;
+}
+
+.manga-card-isolated:hover .manga-image-wrapper img {
+  transform: scale(1.03);
+  filter: grayscale(20%) sepia(5%) contrast(115%) brightness(65%);
+}
+
+/* Typography Container Sector */
+.manga-card-isolated .manga-content {
+  padding: 26px;
+  background: #0b0b0d;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  z-index: 6;
+}
+
+.manga-card-isolated .manga-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.manga-card-isolated .manga-tag-gold-jp {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 10px;
+  color: #dfba73;
+  font-weight: 700;
+}
+
+.manga-card-isolated .manga-card-dot-separator {
+  width: 3px;
+  height: 3px;
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 50%;
+}
+
+.manga-card-isolated .manga-tag-prestige-en {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #8a8a93;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.manga-card-isolated .manga-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #ffffff;
+  margin: 0 0 26px 0;
+  letter-spacing: -0.01em;
+}
+
+/* Premium Action Row Target Link */
+.manga-card-isolated .manga-read-btn-gold {
+  background: rgba(212, 175, 55, 0.02);
+  color: #f3e5ab;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 14px 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.manga-card-isolated .btn-arrow-gold {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+}
+
+/* Hover cross-triggers */
+.manga-card-isolated:hover .manga-read-btn-gold {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 100%);
+  color: #000000;
+  border-color: #dfba73;
+  box-shadow: 0 10px 25px rgba(197, 160, 89, 0.2);
+}
+
+.manga-card-isolated:hover .btn-arrow-gold {
+  transform: translateX(4px);
+  color: #000000;
+}
+
+/* Card Information Context Space */
+.manga-content {
+  padding: 26px;
+  background: #0b0b0d;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  z-index: 6;
+}
+
+.manga-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.manga-tag-gold-jp {
+  font-family: var(--font-jp);
+  font-size: 10px;
+  color: #dfba73;
+  font-weight: 700;
+}
+
+.manga-card-dot-separator {
+  width: 3px;
+  height: 3px;
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 50%;
+}
+
+.manga-tag-prestige-en {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.manga-content h2 {
+  font-family: var(--font-sans);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-pure);
+  margin: 0 0 26px 0;
+  letter-spacing: -0.01em;
+}
+
+/* Premium Gold Accent Interactive Action Trigger Button */
+.manga-read-btn-gold {
+  background: rgba(212, 175, 55, 0.02);
+  color: #f3e5ab;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 14px 20px;
+  cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-arrow-gold {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+}
+
+.manga-card:hover .manga-read-btn-gold {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 100%);
+  color: #000000;
+  border-color: #dfba73;
+  box-shadow: 0 10px 25px rgba(197, 160, 89, 0.2);
+}
+
+.manga-card:hover .btn-arrow-gold {
+  transform: translateX(4px);
+  color: #000000;
+}
+
+/* Vault States Feedback Interfaces */
+.manga-loading-box-prestige, 
+.manga-empty-box-prestige {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 350px;
+  border: 1px dashed rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.01);
+  padding: 40px;
+  text-align: center;
+}
+
+.manga-spinner-diamond {
+  width: 8px;
+  height: 8px;
+  background: #dfba73;
+  margin-bottom: 20px;
+  transform: rotate(45deg);
+  animation: leg-pulse 1.5s infinite ease-in-out;
+}
+
+.manga-loading-box-prestige p {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.manga-empty-box-prestige p {
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--text-pure);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.manga-empty-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+@keyframes leg-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8) rotate(45deg); }
+  50% { opacity: 1; transform: scale(1.3) rotate(225deg); }
+}
+
+@media (max-width: 768px) {
+  .manga-section { padding: 100px 24px 70px; }
+  .manga-section-header { margin-bottom: 50px; }
+  .manga-container { gap: 30px; }
+}
+
+/* ==========================================================================
+   5. CONTACT LEDGER OVERHAUL (GOLD & OBSIDIAN PRESTIGE)
+   ========================================================================== */
+.contact-section-prestige {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  padding: 160px 40px 100px;
+  background: #050506; /* Clean solid Obsidian Deep canvas backdrop */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  border-top: 1px solid var(--manga-border);
+}
+
+/* FIXED Texture: Re-engineered grid mesh to stop central layout line splitting artifacts */
+.contact-bg-prestige-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(to right, rgba(212, 175, 55, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(212, 175, 55, 0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: center center;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.contact-nebula-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  height: 70vw;
+  background: radial-gradient(circle, rgba(197, 160, 89, 0.03) 0%, transparent 70%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Floating Golden Rings Overlay Frame */
+.contact-portal-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.contact-kinetic-portal {
+  position: relative;
+  width: min(650px, 55vw);
+  height: min(650px, 55vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 175, 55, 0.06);
+}
+
+.contact-ring.ring-outer {
+  inset: 0px;
+  border-style: dashed;
+  animation: leg-spin 60s linear infinite;
+}
+
+.contact-ring.ring-mid {
+  inset: 50px;
+  border-color: rgba(243, 229, 171, 0.1);
+}
+
+/* Gilded Card Panel Container Block */
+.contact-wrapper-prestige {
+  width: 100%;
+  max-width: 1100px;
+  background: #0b0b0d; /* Crisp solid high-contrast card backing */
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 60px 50px;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* Corner structural framing pins */
+.contact-gate-pin {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #dfba73;
+  opacity: 0.3;
+}
+.contact-gate-pin.pin-tl { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
+.contact-gate-pin.pin-br { bottom: 12px; right: 12px; border-top: 0; border-left: 0; }
+
+.contact-header-prestige {
+  margin-bottom: 50px;
+}
+
+.contact-subtitle-prestige {
+  font-family: var(--font-jp);
+  color: #dfba73;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.contact-title-prestige {
+  font-family: var(--font-manga);
+  font-size: clamp(30px, 3.5vw, 42px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--text-pure);
+}
+
+.contact-rule-gold {
+  width: 50px;
+  height: 1px;
+  background: #dfba73;
+  margin-top: 20px;
+}
+
+/* Split Column Framework Grid */
+.contact-grid-prestige {
+  display: grid;
+  grid-template-columns: 1.30fr 1fr;
+  gap: 60px;
+  align-items: flex-start;
+}
+
+/* Imperial Ledger Table formatting layouts */
+.contact-imprint-table-gold {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.contact-row-gold {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  padding: 32px 0;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+  align-items: center;
+}
+
+.contact-label-gold {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label-gold-jp {
+  font-family: var(--font-jp);
+  font-size: 10px;
+  color: rgba(212, 175, 55, 0.35);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.label-gold-en {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-pure);
+  text-transform: uppercase;
+}
+
+.contact-value-gold {
+  font-size: 15px;
+}
+
+.contact-link-gold {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 400;
+  transition: color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.link-arrow-gold {
+  font-size: 11px;
+  color: #dfba73;
+  opacity: 0;
+  transform: translate(-3px, 3px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.contact-link-gold:hover {
+  color: #f3e5ab;
+}
+
+.contact-link-gold:hover .link-arrow-gold {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+.contact-text-gold-neutral {
+  color: var(--text-muted);
+}
+
+/* Right Side Block Segment: Sidebar message notes */
+.contact-editorial-sidebar-gold {
+  background: rgba(5, 5, 6, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.06);
+  padding: 36px;
+  position: relative;
+}
+
+.sidebar-gold-brackets {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bracket-gold {
+  font-family: var(--font-jp);
+  font-size: 24px;
+  color: #dfba73;
+  line-height: 1;
+  opacity: 0.5;
+}
+
+.sidebar-gold-brackets span:last-child {
+  text-align: right;
+}
+
+.sidebar-gold-text {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #8c8c96;
+  padding: 10px 14px;
+  margin: 0;
+}
+
+.sidebar-stamp-gold-jp {
+  position: absolute;
+  bottom: -13px;
+  right: 24px;
+  font-family: var(--font-jp);
+  font-size: 9px;
+  font-weight: 700;
+  color: #dfba73;
+  background: #0b0b0d;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 4px 12px;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 992px) {
+  .contact-grid-prestige {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-section-prestige { padding: 120px 20px 60px; }
+  .contact-wrapper-prestige { padding: 40px 24px; }
+  .contact-header-prestige { margin-bottom: 36px; }
+  .contact-row-gold {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 24px 0;
+  }
+  .contact-editorial-sidebar-gold { padding: 24px; }
+}
+
+/* ==========================================================================
+   6. CURATORIAL LEDGER WORKSPACE (GOLD & OBSIDIAN PRESTIGE)
+   ========================================================================== */
+.admin-section {
+  min-height: 100vh;
+  background: #050506;
+  color: var(--text-pure);
+  padding: 140px 60px 80px;
+  position: relative;
+}
+
+.admin-section-ambient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 15%, rgba(197, 160, 89, 0.015) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.admin-wrapper {
+  max-width: 1340px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 5;
+}
+
+.admin-workspace-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.3fr;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+/* Luxury Panel Box Components */
+.admin-panel-box-gold {
+  background: #0b0b0d;
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.high-contrast-box {
+  background: #070709;
+  border-color: rgba(212, 175, 55, 0.12);
+}
+
+.panel-box-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(212, 175, 55, 0.02);
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.06);
+}
+
+.panel-box-header h3 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #dfba73;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.box-dot {
+  width: 4px;
+  height: 4px;
+  background: #dfba73;
+  border-radius: 50%;
+}
+
+.panel-box-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-field-gold {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field-gold label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.form-field-gold input,
+.form-field-gold textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #050506;
+  color: var(--text-pure);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form-field-gold input:focus,
+.form-field-gold textarea:focus {
+  border-color: rgba(212, 175, 55, 0.25);
+  background: #09090b;
+}
+
+.panel-submit-btn {
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #f3e5ab;
+  padding: 14px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.panel-submit-btn:hover {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 100%);
+  color: #000000;
+  border-color: #dfba73;
+}
+
+/* Sequential Matrix Row Index List */
+.admin-selector-ledger {
+  background: #0b0b0d;
+  border: 1px solid rgba(212, 175, 55, 0.04);
+}
+
+.ledger-header-small {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.2);
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+
+.selector-list-wrapper {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.selector-row-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.01);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selector-row-item:hover {
+  background: rgba(212, 175, 55, 0.02);
+}
+
+.selector-row-item.is-active {
+  background: rgba(212, 175, 55, 0.04);
+  border-left: 2px solid #dfba73;
+}
+
+.selector-row-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.row-index {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(212, 175, 55, 0.3);
+}
+
+.selector-row-item.is-active .row-index {
+  color: #dfba73;
+}
+
+.row-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #a4a4ab;
+}
+
+.selector-row-item.is-active .row-title {
+  color: var(--text-pure);
+}
+
+.row-purge-btn {
+  background: transparent;
+  color: rgba(255,255,255,0.15);
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 11px;
+  transition: color 0.2s ease;
+}
+
+.row-purge-btn:hover {
+  color: rgba(255,50,50,0.8);
+}
+
+/* Interior Configuration Column Panel (Right side) */
+.interior-header {
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.header-meta h2 {
+  font-size: 20px;
+  color: var(--text-pure);
+  margin: 4px 0 0;
+  letter-spacing: -0.01em;
+}
+
+.meta-lbl {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(212, 175, 55, 0.4);
+  letter-spacing: 1px;
+}
+
+.chapter-count-badge {
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.06);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  color: #dfba73;
+  padding: 4px 10px;
+  letter-spacing: 0.5px;
+}
+
+.inline-injection-form {
+  display: flex;
+  background: #050506;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  margin: 24px;
+}
+
+.inline-injection-form input {
+  flex: 1;
+  padding: 14px 18px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-pure);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.inline-injection-form button {
+  background: rgba(212, 175, 55, 0.05);
+  color: #dfba73;
+  border: none;
+  border-left: 1px solid rgba(212, 175, 55, 0.15);
+  padding: 0 24px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.inline-injection-form button:hover {
+  background: #dfba73;
+  color: #000;
+}
+
+.ledger-chapters-display {
+  list-style: none;
+  padding: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ledger-chapter-row {
+  background: #0b0b0d;
+  border: 1px solid rgba(255,255,255,0.01);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 2px solid rgba(212, 175, 55, 0.25);
+}
+
+.chap-row-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.chap-bullet {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(212, 175, 55, 0.3);
+}
+
+.chap-text {
+  font-size: 13px;
+  color: #d1d1d6;
+}
+
+.chap-delete-trigger {
+  background: transparent;
+  border: none;
+  color: rgba(255,50,50,0.4);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+}
+
+.ledger-chapter-row:hover .chap-delete-trigger {
+  color: rgba(255,50,50,0.9);
+  background: rgba(255,50,50,0.05);
+}
+
+.ledger-empty-notice {
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.15);
+  padding: 40px 0;
+  border: 1px dashed rgba(255,255,255,0.02);
+  margin: 0 24px 24px;
+}
+
+.admin-no-selection-placeholder {
+  border: 1px dashed rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.005);
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.admin-no-selection-placeholder p {
+  font-size: 12px;
+  letter-spacing: 1px;
+  line-height: 1.8;
+  color: var(--text-muted);
+  max-width: 380px;
+}
+
+@media (max-width: 992px) {
+  .admin-workspace-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+@media (max-width: 600px) {
+  .admin-section { padding: 120px 20px 60px; }
+  .panel-box-form { padding: 20px; }
+  .inline-injection-form { margin: 16px; }
+  .ledger-chapters-display { padding: 0 16px 16px; }
+}
+
+/* ==========================================================================
+   7. SECURE IDENTITY PORTAL (GOLD & OBSIDIAN PRESTIGE)
+   ========================================================================== */
+.login-section-gold {
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #0e0e11 0%, #050506 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Gold geometric layout guide wires in backdrop */
+.login-bg-lines-prestige {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(to right, rgba(212, 175, 55, 0.006) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(212, 175, 55, 0.006) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: center;
+}
+
+/* Gilded Gate Frame Container */
+.login-container-gold {
+  width: 100%;
+  max-width: 440px;
+  background: #0b0b0d;
+  padding: 50px 44px;
+  position: relative;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
+}
+
+/* Corner structural markers */
+.login-gate-pin {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #dfba73;
+  opacity: 0.3;
+}
+.pin-tl { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
+.pin-br { bottom: 10px; right: 10px; border-top: 0; border-left: 0; }
+
+.login-header-gold {
+  text-align: center;
+  margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-subtitle-gold {
+  font-family: var(--font-jp);
+  color: #dfba73;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.login-title-gold {
+  font-family: 'Cinzel', serif;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--text-pure);
+  margin: 0;
+}
+
+.login-rule-gold {
+  width: 40px;
+  height: 1px;
+  background: rgba(212, 175, 55, 0.3);
+  margin-top: 16px;
+}
+
+/* Gilded High-Visibility Feedback Box */
+.login-error-box-gold {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255, 50, 50, 0.03);
+  border: 1px solid rgba(255, 50, 50, 0.15);
+  padding: 14px 18px;
+  margin-bottom: 28px;
+}
+
+.error-icon-gold {
+  color: rgba(255, 50, 50, 0.8);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.login-error-box-gold p {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: rgba(255, 80, 80, 0.9);
+  margin: 0;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Form Layout Configurations */
+.login-form-gold {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.login-input-group-gold {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-input-group-gold label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+
+.login-input-group-gold input {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #050506;
+  color: var(--text-pure);
+  font-size: 14px;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.login-input-group-gold input:focus {
+  border-color: rgba(212, 175, 55, 0.3);
+  background: #0b0b0d;
+}
+
+/* Premium Action Verification Input Trigger */
+.login-submit-btn-gold {
+  background: rgba(212, 175, 55, 0.02);
+  color: #f3e5ab;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  padding: 16px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-submit-btn-gold .btn-arrow-gold {
+  transition: transform 0.3s ease;
+}
+
+.login-submit-btn-gold:hover {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 100%);
+  color: #000000;
+  border-color: #dfba73;
+  box-shadow: 0 10px 25px rgba(197, 160, 89, 0.15);
+}
+
+.login-submit-btn-gold:hover .btn-arrow-gold {
+  transform: translateX(4px);
+  color: #000000;
+}
+
+.login-footer-notice-gold {
+  margin-top: 32px;
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.02);
+  padding-top: 20px;
+}
+/* User Gate Intercept Banner Element */
+.user-gate-notice-gold {
+  background: rgba(212, 175, 55, 0.02);
+  border-left: 2px solid #dfba73;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+.user-gate-notice-gold p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #8c8c96;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   INTERACTIVE USER LOG/REG TRANSITION EXTENSIONS
+   ========================================================================== */
+.auth-mode-selector-tabs {
+  display: flex;
+  background: rgba(5, 5, 6, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  padding: 4px;
+  margin-bottom: 28px;
+  gap: 4px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-transform: uppercase;
+}
+
+.auth-tab-btn:hover {
+  color: #f3e5ab;
+  background: rgba(212, 175, 55, 0.02);
+}
+
+.auth-tab-btn.active-tab {
+  background: rgba(212, 175, 55, 0.05);
+  color: #dfba73;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+/* Success Prompt feedback block styling cards */
+.login-success-box-gold {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(212, 175, 55, 0.02);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 14px 18px;
+  margin-bottom: 28px;
+}
+
+.success-icon-gold {
+  color: #dfba73;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.login-success-box-gold p {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #f3e5ab;
+  margin: 0;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Micro smooth entrance transitions */
+.field-fade-in-prestige {
+  animation: entry-lift 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ==========================================================================
+   UNIFIED HUB AUTHENTICATION OVERLAYS
+   ========================================================================== */
+.identity-segment-bar-prestige {
+  display: flex;
+  background: #040405;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 4px;
+  margin-bottom: 30px;
+  gap: 4px;
+}
+
+.identity-segment-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #8c8c96;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 12px 6px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  text-transform: uppercase;
+}
+
+.identity-segment-btn:hover {
+  color: #f3e5ab;
+  background: rgba(212, 175, 55, 0.02);
+}
+
+.identity-segment-btn.active-segment {
+  background: rgba(212, 175, 55, 0.06);
+  color: #dfba73;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.05);
+}
+
+.auth-helper-subtext {
+  font-size: 11px;
+  color: #8c8c96;
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.inline-gold-link {
+  color: #dfba73;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  margin-left: 4px;
+  transition: color 0.3s ease;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.4);
+  padding-bottom: 1px;
+}
+
+.inline-gold-link:hover {
+  color: #f3e5ab;
+  border-bottom-color: #f3e5ab;
+}
+
+.admin-lock-text-warning {
+  font-size: 10px;
+  line-height: 1.5;
+  color: rgba(212, 175, 55, 0.4);
+  margin: 0;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+@keyframes entry-lift {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .login-container-gold { padding: 36px 24px; }
+  .login-title-gold { font-size: 22px; }
+}
+
+/* ==========================================================================
+   8. MANGA INDEX & VOLUME DISPLAY (GOLD & OBSIDIAN PRESTIGE)
+   ========================================================================== */
+.chapters-section {
+  min-height: 100vh;
+  background: #050506;
+  color: var(--text-pure);
+  padding: 160px 40px 80px;
+  position: relative;
+}
+
+.chapters-section-ambient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(197, 160, 89, 0.02) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.chapters-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 5;
+}
+
+/* Premium Exhibition Banner */
+.manga-banner-gold {
+  display: flex;
+  gap: 50px;
+  background: #0b0b0d;
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  padding: 50px;
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+.banner-image-viewport {
+  position: relative;
+  width: 240px;
+  height: 340px;
+  flex-shrink: 0;
+  background: #000;
+  padding: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+/* Structural Mounting Corners */
+.banner-gold-tick {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border: 1px solid #dfba73;
+}
+.tick-tl { top: 4px; left: 4px; border-right: 0; border-bottom: 0; }
+.tick-br { bottom: 4px; right: 4px; border-top: 0; border-left: 0; }
+
+.banner-image-viewport img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(40%) sepia(10%) contrast(110%);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+}
+
+.banner-content-gold {
+  flex: 1;
+}
+
+.banner-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.meta-badge-gold {
+  font-family: var(--font-jp);
+  font-size: 10px;
+  color: #dfba73;
+  font-weight: 700;
+}
+
+.meta-badge-en {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.banner-content-gold h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(32px, 4vw, 46px);
+  font-weight: 900;
+  color: var(--text-pure);
+  margin: 0 0 18px 0;
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
+
+.banner-content-gold p {
+  font-size: 15px;
+  color: #8c8c96;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* Master Gilded Ledger Group */
+.list-header-gold {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  padding-bottom: 16px;
+  margin-bottom: 32px;
+}
+
+.list-header-gold h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-pure);
+  margin: 0;
+}
+
+.list-header-jp {
+  font-family: var(--font-jp);
+  font-size: 12px;
+  color: rgba(212, 175, 55, 0.3);
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.chapters-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Interactive Chronicle Row Item */
+.chapter-card-gold {
+  background: #0b0b0d;
+  border: 1px solid rgba(212, 175, 55, 0.04);
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chapter-info-block {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.chapter-index-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #dfba73;
+  background: rgba(212, 175, 55, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 4px 8px;
+  letter-spacing: 0.5px;
+}
+
+.chapter-title-string {
+  font-size: 15px;
+  font-weight: 500;
+  color: #d1d1d6;
+  transition: color 0.3s ease;
+}
+
+.chapter-read-btn-gold {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 10px 24px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.read-btn-arrow {
+  transition: transform 0.3s ease;
+}
+
+/* Focus and hover tracking triggers across the entire row card */
+.chapter-card-gold:hover {
+  transform: translateX(4px);
+  background: #111114;
+  border-color: rgba(212, 175, 55, 0.2);
+}
+
+.chapter-card-gold:hover .chapter-title-string {
+  color: var(--text-pure);
+}
+
+.chapter-card-gold:hover .chapter-read-btn-gold {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 100%);
+  color: #000000;
+  border-color: #dfba73;
+  box-shadow: 0 5px 15px rgba(197, 160, 89, 0.15);
+}
+
+.chapter-card-gold:hover .read-btn-arrow {
+  transform: translateX(3px);
+}
+
+/* Layout Structural Breakpoints */
+@media (max-width: 900px) {
+  .manga-banner-gold {
+    flex-direction: column;
+    text-align: center;
+    padding: 32px;
+    gap: 30px;
+  }
+  .banner-image-viewport {
+    width: 180px;
+    height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .chapters-section { padding: 120px 20px 60px; }
+  .chapter-card-gold { padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .chapter-read-btn-gold { width: 100%; justify-content: center; }
+}
+
+/* ==========================================================================
+   CARD-WISE MEDIA MANAGEMENT EXTRAS & PRESTIGE READER THEATRE OVERLAY
+   ========================================================================== */
+.card-wise-form {
+  border-top: 1px solid rgba(212, 175, 55, 0.05);
+}
+
+.gold-flash-btn {
+  margin-top: 10px;
+  background: rgba(212, 175, 55, 0.04) !important;
+  border-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+.gold-flash-btn:hover {
+  background: linear-gradient(135deg, #dfba73 0%, #c5a059 100%) !important;
+  color: #000 !important;
+}
+
+/* Card Wise List Grid UI Layout */
+.admin-chapter-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.admin-chapter-display-card {
+  background: #0b0b0d;
+  border: 1px solid rgba(212, 175, 55, 0.06);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+}
+
+.admin-chapter-display-card:hover {
+  border-color: rgba(212, 175, 55, 0.2);
+  transform: translateY(-2px);
+  background: #0e0e11;
+}
+
+.admin-chapter-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.chapter-card-num {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #dfba73;
+  background: rgba(212, 175, 55, 0.04);
+  padding: 2px 6px;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.chapter-card-purge-trigger {
+  background: transparent;
+  color: rgba(255, 50, 50, 0.4);
+  border: none;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.chapter-card-purge-trigger:hover {
+  color: rgba(255, 50, 50, 0.9);
+}
+
+.admin-chapter-display-card h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-pure);
+  margin: 0 0 16px 0;
+  line-height: 1.4;
+}
+
+.chapter-card-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,0.02);
+  padding-top: 12px;
+}
+
+.chapter-card-metrics span {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.pdf-attached-badge {
+  color: #dfba73 !important;
+  font-size: 9px !important;
+}
+
+/* THEATRE ENGINE: FULL VIEWPORT OVERLAY DIMENSION SCREEN */
+.prestige-reader-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #040405;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: overlay-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.reader-header-navigation-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  height: 70px;
+  background: #0b0b0d;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  flex-shrink: 0;
+}
+
+.reader-title-context {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.reader-manga-lbl { color: var(--text-pure); text-transform: uppercase; }
+.reader-separator { color: rgba(212, 175, 55, 0.4); margin: 0 12px; }
+.reader-chapter-lbl { color: #dfba73; }
+
+.close-reader-btn-gold {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 8px 18px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-reader-btn-gold:hover {
+  background: #dfba73;
+  color: #000;
+  border-color: #dfba73;
+}
+
+.reader-canvas-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  background: #040405;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  scroll-behavior: smooth;
+}
+
+/* Viewport Variant 1: Continuous Seamless Vertical Comic Stream */
+.reader-vertical-comic-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 800px;
+  width: 100%;
+}
+
+.manga-render-page-layer {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 0px; /* Zero margins mimic high-end seamless scroll operations */
+  border-bottom: 1px solid #040405;
+}
+
+/* Viewport Variant 2: Embedded Multi-Platform Browser PDF Engine Portal */
+.reader-pdf-container {
+  width: 100%;
+  max-width: 1100px;
+  height: calc(100vh - 150px);
+  background: #0b0b0d;
+  border: 1px solid rgba(212, 175, 55, 0.08);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+
+.prestige-pdf-iframe {
+  width: 100%;
+  height: 100%;
+  background: #1e1e24;
+}
+
+/* Viewport Variant 3: Empty Resource States Fallback UI */
+.reader-empty-manifest-state {
+  margin: auto;
+  text-align: center;
+  max-width: 400px;
+}
+
+.warning-diamond {
+  font-size: 24px;
+  color: #dfba73;
+  display: block;
+  margin-bottom: 16px;
+  animation: core-shimmer 2s infinite linear;
+}
+
+.reader-empty-manifest-state p {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-pure);
+  margin: 0 0 8px 0;
+}
+
+.reader-empty-manifest-state small {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+@keyframes overlay-fade-in {
+  from { opacity: 0; transform: scale(1.01); }
+  to { opacity: 1; transform: scale(1); }
+}
