@@ -8,10 +8,11 @@ import Contact from "./Contact.jsx";
 import Admin from "./Admin.jsx";
 import Login from "./Login.jsx";
 
+export const API_BASE_URL = "https://mang-wors-back.vercel.app";
+
 function App() {
   const [view, setView] = useState("home");
   const [selectedManga, setSelectedManga] = useState(null);
-
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(() => {
     return localStorage.getItem("isUserLoggedIn") === "true";
   });
@@ -20,19 +21,13 @@ function App() {
   useEffect(() => {
     const savedView = localStorage.getItem("currentView");
     const savedManga = localStorage.getItem("selectedManga");
-
-    if (savedView) {
-      setView(savedView);
-    }
-    if (savedManga) {
-      setSelectedManga(JSON.parse(savedManga));
-    }
+    if (savedView) setView(savedView);
+    if (savedManga) setSelectedManga(JSON.parse(savedManga));
   }, []);
 
   const handleViewChange = (newView) => {
     setView(newView);
     localStorage.setItem("currentView", newView);
-    
     if (newView === "home") {
       localStorage.removeItem("selectedManga");
       setSelectedManga(null);
@@ -42,26 +37,17 @@ function App() {
   const handleMangaSelection = (manga) => {
     setSelectedManga(manga);
     localStorage.setItem("selectedManga", JSON.stringify(manga));
-
     if (!isUserLoggedIn) {
       setTargetRedirectManga(manga);
       setView("user-login");
-      localStorage.setItem("currentView", "user-login");
     } else {
       setView("chapters");
-      localStorage.setItem("currentView", "chapters");
     }
-  };
-
-  const handleUserLoginSuccess = (status) => {
-    setIsUserLoggedIn(status);
-    localStorage.setItem("isUserLoggedIn", status ? "true" : "false");
   };
 
   return (
     <div className="app-container">
       <Nav setView={handleViewChange} />
-
       {view === "home" && (
         <>
           <Hero />
@@ -69,18 +55,15 @@ function App() {
           <Contact />
         </>
       )}
-
       {view === "chapters" && <Chapters selectedManga={selectedManga} />}
-
       {(view === "user-login" || view === "login") && (
         <Login
           setView={handleViewChange}
-          setIsUserLoggedIn={handleUserLoginSuccess}
+          setIsUserLoggedIn={setIsUserLoggedIn}
           targetRedirectManga={targetRedirectManga}
           setSelectedManga={setSelectedManga}
         />
       )}
-
       {view === "admin" && <Admin />}
     </div>
   );
