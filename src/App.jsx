@@ -37,7 +37,8 @@ function App() {
   const handleMangaSelection = (manga) => {
     setSelectedManga(manga);
     localStorage.setItem("selectedManga", JSON.stringify(manga));
-    if (!isUserLoggedIn) {
+    const isLoggedIn = isUserLoggedIn || localStorage.getItem("isAdminLoggedIn") === "true";
+    if (!isLoggedIn) {
       setTargetRedirectManga(manga);
       setView("user-login");
     } else {
