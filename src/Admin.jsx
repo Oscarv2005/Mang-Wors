@@ -48,7 +48,7 @@ function Admin() {
   const deleteManga = (mangaId, e) => {
     e.stopPropagation();
     if (!window.confirm("PURGE THIS MASTER ARCHIVE RECORD PERMANENTLY?")) return;
-    
+
     fetch(`${API_BASE_URL}/api/mangas/${mangaId}`, { method: "DELETE" })
       .then(() => {
         if (activeMangaId === mangaId) setActiveMangaId(null);
@@ -60,7 +60,12 @@ function Admin() {
     e.preventDefault();
     if (!chapTitle.trim() || !activeMangaId) return;
 
-    const payload = { chapterTitle: chapTitle, pages: chapPages, pdfUrl: chapPdf };
+    // Send pages as a string — backend will parse newline/comma separated URLs
+    const payload = {
+      chapterTitle: chapTitle,
+      pages: chapPages,   // backend splits on newlines/commas
+      pdfUrl: chapPdf
+    };
 
     fetch(`${API_BASE_URL}/api/mangas/${activeMangaId}/chapters`, {
       method: "POST",
@@ -150,8 +155,13 @@ function Admin() {
                       <input type="text" value={chapTitle} onChange={(e) => setChapTitle(e.target.value)} required />
                     </div>
                     <div className="form-field-gold">
-                      <label>MANGA PAGE IMAGE LINK COLLECTION</label>
-                      <textarea value={chapPages} onChange={(e) => setChapPages(e.target.value)} rows={2} />
+                      <label>MANGA PAGE IMAGE URLS (one per line or comma-separated)</label>
+                      <textarea
+                        value={chapPages}
+                        onChange={(e) => setChapPages(e.target.value)}
+                        rows={3}
+                        placeholder={"https://example.com/page1.jpg\nhttps://example.com/page2.jpg"}
+                      />
                     </div>
                     <div className="form-field-gold">
                       <label>DIRECT OVERRIDE PDF STORAGE FILE LINK</label>
@@ -170,7 +180,8 @@ function Admin() {
                       </div>
                       <h4>{chap.chapterTitle}</h4>
                       <div className="chapter-card-metrics">
-                        <span>📊 {chap.pages?.length || 0} PANELS DETECTED</span>
+                        {/* pages is always an array from backend now */}
+                        <span>📊 {Array.isArray(chap.pages) ? chap.pages.length : 0} PANELS DETECTED</span>
                         {chap.pdfUrl && <span className="pdf-attached-badge">📑 PDF SOURCE ACTIVE</span>}
                       </div>
                     </div>
