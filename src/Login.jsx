@@ -29,7 +29,9 @@ function Login({ setView, setIsUserLoggedIn, targetRedirectManga }) {
           // ── Admin login ──────────────────────────────────────────────────────
           if (data.role === "admin") {
             localStorage.setItem("isAdminLoggedIn", "true");
-            setView("admin");
+            localStorage.setItem("isUserLoggedIn", "true");
+            setIsUserLoggedIn(true);
+            setView(targetRedirectManga ? "chapters" : "admin");
             return;
           }
           // ── Regular user login ───────────────────────────────────────────────
