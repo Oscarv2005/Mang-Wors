@@ -7,6 +7,7 @@ function Nav({ setView }) {
 
   const isLoggedIn = localStorage.getItem("isUserLoggedIn") === "true" || 
                      localStorage.getItem("isAdminLoggedIn") === "true";
+  const isAdmin = localStorage.getItem("isAdminLoggedIn") === "true";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -83,6 +84,11 @@ function Nav({ setView }) {
         <li onClick={handleContactShortcut} data-text="CONTACT">
           Contact
         </li>
+        {isAdmin && (
+          <li onClick={() => handleNavigation("admin")} data-text="ADMIN">
+            Admin Panel
+          </li>
+        )}
         
         <li className="mobile-only-btn">
           {isLoggedIn ? (
