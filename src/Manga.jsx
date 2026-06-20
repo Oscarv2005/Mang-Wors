@@ -24,7 +24,7 @@ function Manga({ setView, setSelectedManga }) {
       <div className="manga-section-ambient" aria-hidden="true" />
       <div className="manga-section-header">
         <span className="manga-section-subtitle">特選金装版 ARCHIVES</span>
-        <h1 className="manga-title">MASTER COMPENDIUM</h1>
+        <h1 className="manga-title">MASTER MANGAS</h1>
         <div className="manga-header-line-gold" />
       </div>
 
