@@ -93,11 +93,11 @@ function Nav({ setView }) {
         <li className="mobile-only-btn">
           {isLoggedIn ? (
             <button className="nav-login-btn nav-logout-btn-gold" onClick={handleLogoutAction}>
-              <span className="nav-btn-inner">DISCONNECT SPECIMEN</span>
+              <span className="nav-btn-inner">LOGOUT</span>
             </button>
           ) : (
             <button className="nav-login-btn" onClick={() => handleNavigation("login")}>
-              <span className="nav-btn-inner">PREMIUM PORTAL</span>
+              <span className="nav-btn-inner">LOGIN</span>
             </button>
           )}
         </li>
